@@ -4,6 +4,7 @@ import axios from 'axios';
 export default function Home() {
   const [location, setLocation] = useState(null);
   const [errorMessage, setErrorMessage] = useState(null);
+  
 
   const handleClick = async () => {
     if (navigator.geolocation) {
@@ -12,9 +13,9 @@ export default function Home() {
           const { latitude, longitude } = position.coords;
           
           try {
-            response = await axios.post(url, {
-              long: longitude,
-              lat: latitude
+            response = await axios.post('http://127.0.0.1:5000/save_coordinates', {
+              longitude: longitude,
+              latitude: latitude
             })
           } catch (error) {
             console.log("error")
