@@ -57,13 +57,13 @@ export default function EmergencyDashboard() {
       navigator.geolocation.getCurrentPosition(
         async (position) => {
           const { latitude, longitude } = position.coords;
-          const savedName = localStorage.getItem("userName");
+          const savedName = sessionStorage.getItem("userName");
 
           try {
             await axios.post("http://127.0.0.1:5000/save_coordinates", {
               longitude: longitude,
               latitude: latitude,
-              name: savedName
+              name: savedName,
             });
             setLocation({ latitude, longitude });
             setErrorMessage(null);
@@ -108,11 +108,13 @@ export default function EmergencyDashboard() {
         const foodValue = food === "" ? 0 : parseInt(food, 10);
         const waterValue = water === "" ? 0 : parseInt(water, 10);
         const bedsValue = beds === "" ? 0 : parseInt(beds, 10);
-        const savedName = localStorage.getItem("userName");
+        const savedName = sessionStorage.getItem("userName");
 
         // Validate the input values
         if (isNaN(foodValue) || isNaN(waterValue) || isNaN(bedsValue)) {
-          setResourceErrorMessage("Please enter valid numbers for food, water, and beds.");
+          setResourceErrorMessage(
+            "Please enter valid numbers for food, water, and beds."
+          );
           setIsResourceLoading(false);
           return; // Early return on validation failure
         }
@@ -125,7 +127,7 @@ export default function EmergencyDashboard() {
             name: savedName,
             latitude: latitude,
             longitude: longitude,
-            purpose: purpose
+            purpose: purpose,
           });
 
           setShowResourceModal(false);
@@ -136,7 +138,9 @@ export default function EmergencyDashboard() {
           setBeds("");
         } catch (error) {
           console.error("Error submitting supplies:", error);
-          setResourceErrorMessage("Error submitting supplies. Please try again.");
+          setResourceErrorMessage(
+            "Error submitting supplies. Please try again."
+          );
         } finally {
           setIsResourceLoading(false);
         }
@@ -150,29 +154,33 @@ export default function EmergencyDashboard() {
 
   return (
     <div className="flex flex-col items-center justify-center min-h-screen bg-gray-100 p-4 relative">
-      <div className="absolute top-4 left-4 cursor-pointer" onClick={() => router.push("/")}>
+      <div
+        className="absolute top-4 left-4 cursor-pointer"
+        onClick={() => router.push("/")}
+      >
         <Image
           src="/logo.png"
           alt="Logo"
           width={200}
           height={200}
-          className="md:w-32 md:h-32 w-24 h-24"
+          className="md:w-32 md:h-32 w-24 h-24 ml-4"
         />
       </div>
       <div className="flex flex-col sm:flex-row justify-center items-center w-full max-w-md gap-8">
         <button
           onClick={handleSOSClick}
           disabled={isSOSButtonDisabled || isSOSLoading}
-          className={`w-52 h-52 rounded-full font-bold text-xl shadow-lg transition-all ${isSOSButtonDisabled || isSOSLoading
-            ? "bg-gray-400 cursor-not-allowed"
-            : "bg-red-500 hover:bg-red-600 active:bg-red-700"
-            } text-white`}
+          className={`w-52 h-52 rounded-full font-bold text-xl shadow-lg transition-all ${
+            isSOSButtonDisabled || isSOSLoading
+              ? "bg-gray-400 cursor-not-allowed"
+              : "bg-red-500 hover:bg-red-600 active:bg-red-700"
+          } text-white`}
         >
           {isSOSLoading
             ? "Connecting..."
             : isSOSButtonDisabled
-              ? `Wait ${timeRemaining}s`
-              : "Emergency SOS"}
+            ? `Wait ${timeRemaining}s`
+            : "Emergency SOS"}
         </button>
         <button
           onClick={() => setShowResourceModal(true)}
@@ -211,8 +219,8 @@ export default function EmergencyDashboard() {
                     id="purpose"
                     value={purpose}
                     onChange={(e) => setPurpose(e.target.value)}
-                    placeholder="Ex: Local Community Center"  // Add a placeholder here
-                    className="border rounded px-2 py-1 w-full mr-2 placeholder-gray-500"  // Add Tailwind class to style the placeholder
+                    placeholder="Ex: Local Community Center" // Add a placeholder here
+                    className="border rounded px-2 py-1 w-full mr-2 placeholder-gray-500" // Add Tailwind class to style the placeholder
                     disabled={isResourceLoading}
                   />
                 </div>
