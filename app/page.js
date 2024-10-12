@@ -19,7 +19,7 @@ export default function Relief() {
 
     return (
         <div className="flex flex-col items-center justify-center min-h-screen bg-gray-100">
-            <div className="absolute top-4 left-4">
+            <div className="absolute top-4 left-4 cursor-pointer" onClick={() => router.push("/")}>
                 <Image
                     src="/logo.png"
                     alt="Logo"
