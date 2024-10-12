@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from "react";
 import Image from "next/image";
-import axios from 'axios';
+import axios from "axios";
 import dynamic from "next/dynamic";
 import { MapPin, Package, Droplet, Bed, Clock, Calendar } from "lucide-react";
 
@@ -40,7 +40,7 @@ export default function Relief() {
     const getData = async () => {
       try {
         // Fetch data from the API
-        const response = await axios.get('http://127.0.0.1:5000/get_all');
+        const response = await axios.get("http://127.0.0.1:5000/get_all");
         const newData = response.data; // Access the 'data' field from Axios response
 
         console.log("data: ", newData);
@@ -56,19 +56,20 @@ export default function Relief() {
           4: "Th",
           5: "F",
           6: "Sa",
-          7: "Sa"  // Added for full week if you need to use 7 as Sunday
+          7: "Sa", // Added for full week if you need to use 7 as Sunday
         };
 
         // Ensure that 'daysOfWeek' exists and is an array before mapping over it
-        const formattedVolunteers = newVolunteers.map(volunteer => ({
-          ...volunteer,  // Spread existing properties
-          daysOfWeek: volunteer.daysOfWeek && Array.isArray(volunteer.daysOfWeek)
-            ? volunteer.daysOfWeek.map(day => daysDictionary[day] || day)  // Map daysOfWeek to the new format
-            : []  // Default to an empty array if daysOfWeek is not present
+        const formattedVolunteers = newVolunteers.map((volunteer) => ({
+          ...volunteer, // Spread existing properties
+          daysOfWeek:
+            volunteer.daysOfWeek && Array.isArray(volunteer.daysOfWeek)
+              ? volunteer.daysOfWeek.map((day) => daysDictionary[day] || day) // Map daysOfWeek to the new format
+              : [], // Default to an empty array if daysOfWeek is not present
         }));
 
         // Log each volunteer's daysOfWeek to inspect it
-        formattedVolunteers.forEach(vol => console.log(vol.daysOfWeek));
+        formattedVolunteers.forEach((vol) => console.log(vol.daysOfWeek));
 
         // Update state
         setEmergencies(newEmergencies);
@@ -80,7 +81,6 @@ export default function Relief() {
     };
 
     getData();
-
   }, []);
 
   return (
@@ -100,7 +100,7 @@ export default function Relief() {
       <div className="container mx-auto px-4 pb-8">
         <div className="flex flex-col lg:flex-row gap-8">
           <div className="w-full lg:w-2/3 space-y-8">
-            <Card className="overflow-hidden">
+            <Card className="bg-white overflow-hidden">
               <h2 className="text-2xl font-semibold mb-4 text-gray-800">
                 Emergency Map
               </h2>
@@ -123,7 +123,7 @@ export default function Relief() {
             </Card>
           </div>
           <div className="w-full lg:w-1/3 space-y-8">
-            <Card>
+            <Card className="bg-white">
               <h2 className="text-2xl font-semibold mb-4 text-gray-800">
                 Aid Needed
               </h2>
@@ -157,7 +157,7 @@ export default function Relief() {
                 ))}
               </div>
             </Card>
-            <Card>
+            <Card className="bg-white">
               <h2 className="text-2xl font-semibold mb-4 text-gray-800">
                 Volunteers
               </h2>
