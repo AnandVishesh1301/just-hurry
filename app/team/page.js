@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-import Card from '../components/Card.js';
+import Card from '../components/Card.js'; 
 
 export default function Relief() {
   const [coordinates, setCoordinates] = useState({
