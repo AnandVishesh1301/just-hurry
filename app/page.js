@@ -20,7 +20,7 @@ export default function Relief() {
 
     const handleTeamClick = () => {
         // Redirect to the team page
-        router.push("/team");
+        router.push("/volunteer");
     };
 
     const handleClientClick = () => {
