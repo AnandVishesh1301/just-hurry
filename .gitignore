@@ -1,0 +1,5 @@
+# Ignore configuration file with uri
+config.ini
+
+# Ignore environment files
+.env
