@@ -20,6 +20,7 @@ export default function EmergencyDashboard() {
   const [isResourceLoading, setIsResourceLoading] = useState(false);
   const [resourceErrorMessage, setResourceErrorMessage] = useState(null);
   const [isRequestSubmitted, setIsRequestSubmitted] = useState(false);
+  const [purpose, setPurpose] = useState("");
 
   const modalRef = useRef(null);
 
@@ -124,6 +125,7 @@ export default function EmergencyDashboard() {
             name: savedName,
             latitude: latitude,
             longitude: longitude,
+            purpose: purpose
           });
 
           setShowResourceModal(false);
@@ -193,16 +195,31 @@ export default function EmergencyDashboard() {
           >
             <h2 className="text-xl font-bold mb-4">Request Resources</h2>
             {/* New heading for user details */}
-            
-            <p>
-              <h3 className="text-lg font-semibold mb-4" >Please specify the quantities of resources you need.</h3>
-            </p>
+
             {resourceErrorMessage && (
               <div className="text-center text-red-500 text-sm mb-4">
                 {resourceErrorMessage}
               </div>
             )}
             <form onSubmit={handleRequestSubmit}>
+              <div className="mb-4">
+                <label htmlFor="purpose" className="block mb-2">
+                  Who are these resources for?
+                </label>
+                <div className="flex items-center">
+                  <input
+                    id="purpose"
+                    value={purpose}
+                    onChange={(e) => setPurpose(e.target.value)}
+                    placeholder="Ex: Local Community Center"  // Add a placeholder here
+                    className="border rounded px-2 py-1 w-full mr-2 placeholder-gray-500"  // Add Tailwind class to style the placeholder
+                    disabled={isResourceLoading}
+                  />
+                </div>
+              </div>
+              {/* <p>
+                <h3 className="text-lg font-semibold mb-4" >Please specify the quantities of resources you need.</h3>
+              </p> */}
               <div className="mb-4">
                 <label htmlFor="food" className="block mb-2">
                   Food
