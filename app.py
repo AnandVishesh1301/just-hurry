@@ -33,6 +33,7 @@ def create_app():
     db = client.get_database("Coordinates")
     coordinates_collection = db.get_collection("Location")
     supplies_collection = db.get_collection("Supplies")
+    volunteer_collection = db.get_collection('Volunteers')
     
     # Define a route for saving coordinates
     @app.route('/save_coordinates', methods=['POST'])
@@ -42,14 +43,19 @@ def create_app():
         data = request.json
         latitude = data.get('latitude')
         longitude = data.get('longitude')
+        name = data.get('name')
+
+        print("data: ", data)
+        print("name: ", name)
         
-        if latitude is None or longitude is None:
+        if latitude is None or longitude is None or name is None:
             return jsonify({"error": "Missing latitude or longitude"}), 400
         
         # Create a dictionary to represent the document
         location_data = {
             "latitude": latitude,
-            "longitude": longitude
+            "longitude": longitude,
+            "name": name
         }
         
         # Insert the data into the Coordinates.Location collection
@@ -66,18 +72,47 @@ def create_app():
         food = data.get('food')
         water = data.get('water')
         beds = data.get('beds')
+        name = data.get('name')
+        latitude = data.get('latitude')
+        longitude = data.get('longitude')
 
-        if food is None or water is None or beds is None:
+        if food is None or water is None or beds is None or name is None:
             return jsonify({"error": "Missing food, water, or beds value"}), 400
 
         supplies_data = {
             "food": food,
             "water": water,
-            "beds": beds
+            "beds": beds,
+            "name": name,
+            'latitude': latitude,
+            'longitude': longitude
         }
 
         result = supplies_collection.insert_one(supplies_data)
         return jsonify({"message": "Supplies saved", "id": str(result.inserted_id)}), 201
+    
+    @app.route('/save_volunteer', methods=['POST'])
+    def save_volunteer():
+        data = request.json
+        name = data.get('name')
+        days = data.get('days')
+        latitude = data.get('latitude')
+        longitude = data.get('longitude')
+
+        if name is None or days is None or latitude is None or longitude is None:
+            return jsonify({"error": "Missing food, water, or beds value"}), 400
+        
+        save_data = {
+            'name': name,
+            'days': days,
+            'latitude': latitude,
+            'longitude': longitude
+        }
+
+        result = volunteer_collection.insert_one(save_data)
+
+        return jsonify({"message": "Volunteer saved", "id": str(result.inserted_id)}), 201
+    
     
     # New route for getting the latest coordinates back from the DB
     @app.route('/get_coordinates', methods=['GET'])
@@ -116,4 +151,4 @@ def create_app():
 
 if __name__ == "__main__":
     app = create_app()
-    app.run()
+    app.run(debug=True)

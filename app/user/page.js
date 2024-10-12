@@ -3,16 +3,19 @@
 import React, { useState, useEffect, useRef } from "react";
 import axios from "axios";
 import Image from "next/image";
+import { useRouter } from "next/navigation";
 
 export default function EmergencyDashboard() {
+  const router = useRouter();
+
   const [location, setLocation] = useState(null);
   const [errorMessage, setErrorMessage] = useState(null);
   const [isSOSButtonDisabled, setIsSOSButtonDisabled] = useState(false);
   const [isSOSLoading, setIsSOSLoading] = useState(false);
   const [showResourceModal, setShowResourceModal] = useState(false);
-  const [food, setFood] = useState("");
-  const [water, setWater] = useState("");
-  const [beds, setBeds] = useState("");
+  const [food, setFood] = useState("0");
+  const [water, setWater] = useState("0");
+  const [beds, setBeds] = useState("0");
   const [timeRemaining, setTimeRemaining] = useState(0);
   const [isResourceLoading, setIsResourceLoading] = useState(false);
   const [resourceErrorMessage, setResourceErrorMessage] = useState(null);
@@ -53,10 +56,13 @@ export default function EmergencyDashboard() {
       navigator.geolocation.getCurrentPosition(
         async (position) => {
           const { latitude, longitude } = position.coords;
+          const savedName = localStorage.getItem("userName");
+
           try {
             await axios.post("http://127.0.0.1:5000/save_coordinates", {
-              longitude,
-              latitude,
+              longitude: longitude,
+              latitude: latitude,
+              name: savedName,
             });
             setLocation({ latitude, longitude });
             setErrorMessage(null);
@@ -84,35 +90,72 @@ export default function EmergencyDashboard() {
 
   const handleRequestSubmit = async (e) => {
     e.preventDefault();
-    setIsResourceLoading(true);
-    setResourceErrorMessage(null);
-    const foodValue = food === "" ? 0 : parseInt(food);
-    const waterValue = water === "" ? 0 : parseInt(water);
-    const bedsValue = beds === "" ? 0 : parseInt(beds);
 
-    try {
-      await axios.post("http://127.0.0.1:5000/save_supplies", {
-        food: foodValue,
-        water: waterValue,
-        beds: bedsValue,
-      });
-      setShowResourceModal(false);
-      setIsRequestSubmitted(true);
-      alert("Resource request submitted successfully.");
-      setFood("");
-      setWater("");
-      setBeds("");
-    } catch (error) {
-      console.error("Error submitting supplies:", error);
-      setResourceErrorMessage("Error submitting supplies. Please try again.");
-    } finally {
-      setIsResourceLoading(false);
+    // Check if geolocation is available
+    if (!navigator.geolocation) {
+      setErrorMessage("Geolocation is not supported by your browser.");
+      return; // Early return
     }
+
+    navigator.geolocation.getCurrentPosition(
+      async (position) => {
+        const { latitude, longitude } = position.coords;
+        setIsResourceLoading(true);
+        setResourceErrorMessage(null);
+
+        // Default values for supplies
+        const foodValue = food === "" ? 0 : parseInt(food, 10);
+        const waterValue = water === "" ? 0 : parseInt(water, 10);
+        const bedsValue = beds === "" ? 0 : parseInt(beds, 10);
+        const savedName = localStorage.getItem("userName");
+
+        // Validate the input values
+        if (isNaN(foodValue) || isNaN(waterValue) || isNaN(bedsValue)) {
+          setResourceErrorMessage(
+            "Please enter valid numbers for food, water, and beds."
+          );
+          setIsResourceLoading(false);
+          return; // Early return on validation failure
+        }
+
+        try {
+          await axios.post("http://127.0.0.1:5000/save_supplies", {
+            food: foodValue,
+            water: waterValue,
+            beds: bedsValue,
+            name: savedName,
+            latitude: latitude,
+            longitude: longitude,
+          });
+
+          setShowResourceModal(false);
+          setIsRequestSubmitted(true);
+          alert("Resource request submitted successfully.");
+          setFood("");
+          setWater("");
+          setBeds("");
+        } catch (error) {
+          console.error("Error submitting supplies:", error);
+          setResourceErrorMessage(
+            "Error submitting supplies. Please try again."
+          );
+        } finally {
+          setIsResourceLoading(false);
+        }
+      },
+      (error) => {
+        setErrorMessage("Unable to retrieve location. Please try again.");
+        setIsResourceLoading(false);
+      }
+    );
   };
 
   return (
     <div className="flex flex-col items-center justify-center min-h-screen bg-gray-100 p-4 relative">
-      <div className="absolute top-2 left-4">
+      <div
+        className="absolute top-4 left-4 cursor-pointer"
+        onClick={() => router.push("/")}
+      >
         <Image
           src="/logo.png"
           alt="Logo"
@@ -157,8 +200,12 @@ export default function EmergencyDashboard() {
             className="bg-white p-6 rounded-lg w-full max-w-md"
           >
             <h2 className="text-xl font-bold mb-4">Request Resources</h2>
-            <p className="mb-4">
-              Please specify the quantities of resources you need.
+            {/* New heading for user details */}
+
+            <p>
+              <h3 className="text-lg font-semibold mb-4">
+                Please specify the quantities of resources you need.
+              </h3>
             </p>
             {resourceErrorMessage && (
               <div className="text-center text-red-500 text-sm mb-4">
