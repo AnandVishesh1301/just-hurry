@@ -59,7 +59,8 @@ export default function Home() {
     <div className="flex flex-col items-center justify-center h-screen bg-gray-100">
       <button
         onClick={handleClick}
-        className="bg-red-500 text-white font-bold py-4 px-8 rounded-lg shadow-lg transition-opacity duration-200 active:opacity-70 focus:outline-none mb-4"
+        title="Push me to Send a Distress Signal to the Relief Authorities" // Tooltip
+        className="bg-red-500 text-white font-bold py-4 px-8 rounded-lg shadow-lg transition-opacity duration-200 active:opacity-70 focus:outline-none mb-12"
       >
         🚨 Emergency 🚨
       </button>
@@ -129,6 +130,7 @@ export default function Home() {
         {/* Request Button */}
         <button
           onClick={handleRequestSubmit}
+          title="Press me to send the supplies request to the Relief Authorities" // Tooltip
           className="bg-blue-500 text-white font-bold py-2 px-4 rounded-lg shadow-md transition-opacity duration-200 active:opacity-70 focus:outline-none w-full"
         >
           Submit Request
