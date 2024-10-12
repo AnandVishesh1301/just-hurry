@@ -10,15 +10,6 @@ const EmergencyMap = dynamic(() => import("../components/EmergencyMap.js"), {
   ssr: false,
 });
 
-const Card = ({ title, children, className = "" }) => (
-  <div
-    className={`bg-white rounded-lg shadow-md p-4 mb-4 hover:bg-gray-50 transition-colors duration-200 ${className}`}
-  >
-    <h3 className="text-lg font-semibold mb-2 text-gray-800">{title}</h3>
-    {children}
-  </div>
-);
-
 const EmergencyCard = ({ name, latitude, longitude }) => (
   <div className="bg-red-100 rounded-lg shadow-md p-3 flex flex-col justify-between hover:bg-red-200 transition-colors duration-200">
     <h3 className="text-md font-semibold text-gray-800">{name}</h3>
@@ -28,6 +19,15 @@ const EmergencyCard = ({ name, latitude, longitude }) => (
         , {longitude.toFixed(4)}
       </p>
     </div>
+  </div>
+);
+
+const Card = ({ title, children, className = "" }) => (
+  <div
+    className={`rounded-lg shadow-md p-4 mb-4 transition-colors duration-200 ${className}`}
+  >
+    <h3 className="text-lg font-semibold mb-2 text-gray-800">{title}</h3>
+    {children}
   </div>
 );
 
