@@ -3,8 +3,11 @@
 import React, { useState, useEffect, useRef } from "react";
 import axios from "axios";
 import Image from "next/image";
+import { useRouter } from "next/navigation";
 
 export default function EmergencyDashboard() {
+  const router = useRouter();
+
   const [location, setLocation] = useState(null);
   const [errorMessage, setErrorMessage] = useState(null);
   const [isSOSButtonDisabled, setIsSOSButtonDisabled] = useState(false);
@@ -112,7 +115,7 @@ export default function EmergencyDashboard() {
 
   return (
     <div className="flex flex-col items-center justify-center min-h-screen bg-gray-100 p-4 relative">
-      <div className="absolute top-4 left-4">
+      <div className="absolute top-4 left-4 cursor-pointer" onClick={() => router.push("/")}>
         <Image
           src="/logo.png"
           alt="Logo"
