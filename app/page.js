@@ -3,6 +3,7 @@
 import React, { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
+import ChatBot from "./components/ChatBot";
 
 export default function Relief() {
   const router = useRouter();
@@ -88,6 +89,7 @@ export default function Relief() {
           </button>
         </div>
       )}
+      <ChatBot />
     </div>
   );
 }
