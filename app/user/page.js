@@ -9,16 +9,13 @@ export default function EmergencyDashboard() {
   const router = useRouter();
 
   const [location, setLocation] = useState(null);
-  const [firstName, setFirstName] = useState('');
-  const [lastName, setLastName] = useState('');
-  const [fullName, setFullName] = useState('');
   const [errorMessage, setErrorMessage] = useState(null);
   const [isSOSButtonDisabled, setIsSOSButtonDisabled] = useState(false);
   const [isSOSLoading, setIsSOSLoading] = useState(false);
   const [showResourceModal, setShowResourceModal] = useState(false);
-  const [food, setFood] = useState("");
-  const [water, setWater] = useState("");
-  const [beds, setBeds] = useState("");
+  const [food, setFood] = useState("0");
+  const [water, setWater] = useState("0");
+  const [beds, setBeds] = useState("0");
   const [timeRemaining, setTimeRemaining] = useState(0);
   const [isResourceLoading, setIsResourceLoading] = useState(false);
   const [resourceErrorMessage, setResourceErrorMessage] = useState(null);
@@ -59,10 +56,13 @@ export default function EmergencyDashboard() {
       navigator.geolocation.getCurrentPosition(
         async (position) => {
           const { latitude, longitude } = position.coords;
+          const savedName = localStorage.getItem("userName");
+
           try {
             await axios.post("http://127.0.0.1:5000/save_coordinates", {
-              longitude,
-              latitude,
+              longitude: longitude,
+              latitude: latitude,
+              name: savedName
             });
             setLocation({ latitude, longitude });
             setErrorMessage(null);
@@ -90,30 +90,60 @@ export default function EmergencyDashboard() {
 
   const handleRequestSubmit = async (e) => {
     e.preventDefault();
-    setIsResourceLoading(true);
-    setResourceErrorMessage(null);
-    const foodValue = food === "" ? 0 : parseInt(food);
-    const waterValue = water === "" ? 0 : parseInt(water);
-    const bedsValue = beds === "" ? 0 : parseInt(beds);
 
-    try {
-      await axios.post("http://127.0.0.1:5000/save_supplies", {
-        food: foodValue,
-        water: waterValue,
-        beds: bedsValue,
-      });
-      setShowResourceModal(false);
-      setIsRequestSubmitted(true);
-      alert("Resource request submitted successfully.");
-      setFood("");
-      setWater("");
-      setBeds("");
-    } catch (error) {
-      console.error("Error submitting supplies:", error);
-      setResourceErrorMessage("Error submitting supplies. Please try again.");
-    } finally {
-      setIsResourceLoading(false);
+    // Check if geolocation is available
+    if (!navigator.geolocation) {
+      setErrorMessage("Geolocation is not supported by your browser.");
+      return; // Early return
     }
+
+    navigator.geolocation.getCurrentPosition(
+      async (position) => {
+        const { latitude, longitude } = position.coords;
+        setIsResourceLoading(true);
+        setResourceErrorMessage(null);
+
+        // Default values for supplies
+        const foodValue = food === "" ? 0 : parseInt(food, 10);
+        const waterValue = water === "" ? 0 : parseInt(water, 10);
+        const bedsValue = beds === "" ? 0 : parseInt(beds, 10);
+        const savedName = localStorage.getItem("userName");
+
+        // Validate the input values
+        if (isNaN(foodValue) || isNaN(waterValue) || isNaN(bedsValue)) {
+          setResourceErrorMessage("Please enter valid numbers for food, water, and beds.");
+          setIsResourceLoading(false);
+          return; // Early return on validation failure
+        }
+
+        try {
+          await axios.post("http://127.0.0.1:5000/save_supplies", {
+            food: foodValue,
+            water: waterValue,
+            beds: bedsValue,
+            name: savedName,
+            latitude: latitude,
+            longitude: longitude,
+          });
+
+          setShowResourceModal(false);
+          setIsRequestSubmitted(true);
+          alert("Resource request submitted successfully.");
+          setFood("");
+          setWater("");
+          setBeds("");
+        } catch (error) {
+          console.error("Error submitting supplies:", error);
+          setResourceErrorMessage("Error submitting supplies. Please try again.");
+        } finally {
+          setIsResourceLoading(false);
+        }
+      },
+      (error) => {
+        setErrorMessage("Unable to retrieve location. Please try again.");
+        setIsResourceLoading(false);
+      }
+    );
   };
 
   return (
@@ -131,17 +161,16 @@ export default function EmergencyDashboard() {
         <button
           onClick={handleSOSClick}
           disabled={isSOSButtonDisabled || isSOSLoading}
-          className={`w-52 h-52 rounded-full font-bold text-xl shadow-lg transition-all ${
-            isSOSButtonDisabled || isSOSLoading
-              ? "bg-gray-400 cursor-not-allowed"
-              : "bg-red-500 hover:bg-red-600 active:bg-red-700"
-          } text-white`}
+          className={`w-52 h-52 rounded-full font-bold text-xl shadow-lg transition-all ${isSOSButtonDisabled || isSOSLoading
+            ? "bg-gray-400 cursor-not-allowed"
+            : "bg-red-500 hover:bg-red-600 active:bg-red-700"
+            } text-white`}
         >
           {isSOSLoading
             ? "Connecting..."
             : isSOSButtonDisabled
-            ? `Wait ${timeRemaining}s`
-            : "Emergency SOS"}
+              ? `Wait ${timeRemaining}s`
+              : "Emergency SOS"}
         </button>
         <button
           onClick={() => setShowResourceModal(true)}
@@ -164,21 +193,7 @@ export default function EmergencyDashboard() {
           >
             <h2 className="text-xl font-bold mb-4">Request Resources</h2>
             {/* New heading for user details */}
-            <h3 className="text-lg font-semibold mb-4">Please Enter your Details</h3>
-            {/* Input for Full Name */}
-            <div className="mb-4">
-              {/* <label htmlFor="fullName" className="block mb-2">Full Name</label> */}
-              <div className="flex items-center">
-                <input
-                  id="fullName"
-                  type="text"
-                  value={fullName}
-                  onChange={(e) => setFullName(e.target.value)}
-                  className="border rounded px-2 py-1 w-full mr-2"
-                  disabled={isResourceLoading}
-                />
-              </div>
-            </div>
+            
             <p>
               <h3 className="text-lg font-semibold mb-4" >Please specify the quantities of resources you need.</h3>
             </p>

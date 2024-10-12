@@ -8,7 +8,6 @@ import { useRouter } from "next/navigation";
 export default function Volunteer({ setShowResourceModal }) {
     const router = useRouter();
 
-    const [volName, setName] = useState("");
     const [days, setDays] = useState(1);
     const [errorMessage, setErrorMessage] = useState("");
     const modalRef = useRef(null);
@@ -20,12 +19,13 @@ export default function Volunteer({ setShowResourceModal }) {
             navigator.geolocation.getCurrentPosition(
                 async (position) => {
                     const { latitude, longitude } = position.coords;
+                    const savedName = localStorage.getItem("userName");
 
                     try {
                         await axios.post("http://127.0.0.1:5000/save_volunteer", {
                             longitude: longitude,
                             latitude: latitude,
-                            name: volName,
+                            name: savedName,
                             days: days 
 
                         });
@@ -61,7 +61,7 @@ export default function Volunteer({ setShowResourceModal }) {
             >
                 <h2 className="text-xl font-bold mb-4">Volunteer Form</h2>
                 <p className="mb-4">
-                    Please list your name and days available
+                    Please list days available
                 </p>
                 {errorMessage && (
                     <div className="text-center text-red-500 text-sm mb-4">
@@ -69,17 +69,6 @@ export default function Volunteer({ setShowResourceModal }) {
                     </div>
                 )}
                 <form onSubmit={handleSubmit}>
-                    <div className="mb-4">
-                        <label htmlFor="food" className="block mb-2">
-                            Full Name
-                        </label>
-                        <input
-                            id="name"
-                            value={volName}
-                            onChange={(e) => setName(e.target.value)}
-                            className="border rounded px-2 py-1 w-full"
-                        />
-                    </div>
                     <div className="mb-4">
                         <label htmlFor="water" className="block mb-2">
                             How many days are you available for
