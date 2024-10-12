@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect } from "react";
 import Image from "next/image";
+import axios from 'axios';
 import dynamic from "next/dynamic";
 import { MapPin, Package, Droplet, Bed, Clock, Calendar } from "lucide-react";
 
@@ -36,65 +37,50 @@ export default function Relief() {
   const [volunteers, setVolunteers] = useState([]);
 
   useEffect(() => {
-    // Fetch data for emergencies, aid requests, and volunteers
-    // This is mock data, replace with actual API calls
-    setEmergencies([
-      { id: 1, name: "John Doe", latitude: 40.7128, longitude: -74.006 },
-      { id: 2, name: "Jane Smith", latitude: 34.0522, longitude: -118.2437 },
-      { id: 3, name: "Bob Johnson", latitude: 41.8781, longitude: -87.6298 },
-      { id: 4, name: "Alice Brown", latitude: 29.7604, longitude: -95.3698 },
-    ]);
+    const getData = async () => {
+      try {
+        // Fetch data from the API
+        const response = await axios.get('http://127.0.0.1:5000/get_all');
+        const newData = response.data; // Access the 'data' field from Axios response
 
-    setAidRequests([
-      {
-        id: 1,
-        name: "Community Center",
-        food: 100,
-        water: 200,
-        beds: 50,
-        latitude: 41.8781,
-        longitude: -87.6298,
-      },
-      {
-        id: 2,
-        name: "School Shelter",
-        food: 75,
-        water: 150,
-        beds: 30,
-        latitude: 29.7604,
-        longitude: -95.3698,
-      },
-      {
-        id: 3,
-        name: "Hospital",
-        food: 200,
-        water: 300,
-        beds: 100,
-        latitude: 34.0522,
-        longitude: -118.2437,
-      },
-    ]);
+        console.log("data: ", newData);
+        const newEmergencies = newData.emergencies || [];
+        let newAid = newData.aidRequests || [];
+        const newVolunteers = newData.volunteer || [];
 
-    setVolunteers([
-      {
-        id: 1,
-        name: "Alice Johnson",
-        hoursAvailable: 20,
-        daysAvailable: "Mon, Wed, Fri",
-      },
-      {
-        id: 2,
-        name: "Bob Williams",
-        hoursAvailable: 15,
-        daysAvailable: "Tue, Thu, Sat",
-      },
-      {
-        id: 3,
-        name: "Carol Davis",
-        hoursAvailable: 25,
-        daysAvailable: "Mon, Tue, Wed, Thu",
-      },
-    ]);
+        const daysDictionary = {
+          0: "Su",
+          1: "M",
+          2: "Tu",
+          3: "W",
+          4: "Th",
+          5: "F",
+          6: "Sa",
+          7: "Sa"  // Added for full week if you need to use 7 as Sunday
+        };
+
+        // Ensure that 'daysOfWeek' exists and is an array before mapping over it
+        const formattedVolunteers = newVolunteers.map(volunteer => ({
+          ...volunteer,  // Spread existing properties
+          daysOfWeek: volunteer.daysOfWeek && Array.isArray(volunteer.daysOfWeek)
+            ? volunteer.daysOfWeek.map(day => daysDictionary[day] || day)  // Map daysOfWeek to the new format
+            : []  // Default to an empty array if daysOfWeek is not present
+        }));
+
+        // Log each volunteer's daysOfWeek to inspect it
+        formattedVolunteers.forEach(vol => console.log(vol.daysOfWeek));
+
+        // Update state
+        setEmergencies(newEmergencies);
+        setAidRequests(newAid);
+        setVolunteers(formattedVolunteers); // Use formatted volunteers
+      } catch (error) {
+        console.error("Error fetching data: ", error);
+      }
+    };
+
+    getData();
+
   }, []);
 
   return (

@@ -152,6 +152,41 @@ def create_app():
         print(latest_supply)
 
         return jsonify(latest_supply), 200
+    
+
+    # get all data from db
+    @app.route('/get_all', methods=['GET'])
+    def get_all():
+        
+        emergencies = list(coordinates_collection.find())
+        aidRequests = list(supplies_collection.find())
+        volunteer = list(volunteer_collection.find())
+
+        for emergency in emergencies:
+            emergency["_id"] = str(emergency["_id"])  
+            emergency["id"] = emergency["_id"] 
+
+        
+        for aidRequest in aidRequests:
+            aidRequest["_id"] = str(aidRequest["_id"])  
+            aidRequest["id"] = aidRequest["_id"]  
+
+        for vol in volunteer:
+            vol["_id"] = str(vol["_id"])  
+            vol["id"] = vol["_id"] 
+
+        returnDict = {
+            'emergencies': emergencies,
+            'aidRequests': aidRequests,
+            'volunteer': volunteer
+        }
+
+        print(returnDict)
+
+        # Return the response as JSON
+        return jsonify(returnDict), 200
+
+
         
     return app
 
