@@ -4,6 +4,7 @@ import React, { useState, useEffect } from "react";
 import Image from "next/image";
 import axios from "axios";
 import dynamic from "next/dynamic";
+import { motion } from "framer-motion";
 import { MapPin, Package, Droplet, Bed, Clock, Calendar } from "lucide-react";
 
 const EmergencyMap = dynamic(() => import("../components/EmergencyMap.js"), {
@@ -11,24 +12,33 @@ const EmergencyMap = dynamic(() => import("../components/EmergencyMap.js"), {
 });
 
 const EmergencyCard = ({ name, latitude, longitude }) => (
-  <div className="bg-red-100 rounded-lg shadow-md p-3 flex flex-col justify-between hover:bg-red-200 transition-colors duration-200">
+  <motion.div
+    initial={{ opacity: 0, y: 50 }}
+    whileInView={{ opacity: 1, y: 0 }}
+    viewport={{ once: true }}
+    transition={{ duration: 0.5 }}
+    className="bg-red-100 ro  unded-lg shadow-md p-3 flex flex-col justify-between hover:bg-red-200 transition-colors duration-200"
+  >
     <h3 className="text-md font-semibold text-gray-800">{name}</h3>
     <div className="text-sm text-gray-600">
       <p className="flex items-center">
-        <MapPin size={14} className="mr-1 text-red-500" /> {latitude.toFixed(4)}
-        , {longitude.toFixed(4)}
+        <MapPin size={14} className="mr-1 text-red-500" /> {latitude.toFixed(4)}, {longitude.toFixed(4)}
       </p>
     </div>
-  </div>
+  </motion.div>
 );
 
 const Card = ({ title, children, className = "" }) => (
-  <div
+  <motion.div
+    initial={{ opacity: 0, y: 50 }}
+    whileInView={{ opacity: 1, y: 0 }}
+    viewport={{ once: true }}
+    transition={{ duration: 0.5 }}
     className={`rounded-lg shadow-md p-4 mb-4 transition-colors duration-200 ${className}`}
   >
     <h3 className="text-lg font-semibold mb-2 text-gray-800">{title}</h3>
     {children}
-  </div>
+  </motion.div>
 );
 
 export default function Relief() {
@@ -92,9 +102,14 @@ export default function Relief() {
           className="md:w-32 md:h-32 w-24 h-24"
         />
       </div>
-      <h1 className="text-4xl font-bold text-center text-gray-800 pt-24 pb-8">
+      <motion.h1
+        initial={{ opacity: 0, y: -50 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.5 }}
+        className="text-4xl font-bold text-center text-gray-800 pt-24 pb-8"
+      >
         Relief Dashboard
-      </h1>
+      </motion.h1>
       <div className="container mx-auto px-4 pb-8">
         <div className="flex flex-col lg:flex-row gap-8">
           <div className="w-full lg:w-2/3 space-y-8">
@@ -129,7 +144,7 @@ export default function Relief() {
                 {aidRequests.map((request) => (
                   <Card
                     key={request.id}
-                    title={request.name}
+                    title={request.purpose}
                     className="bg-orange-100 hover:bg-orange-200"
                   >
                     <div className="flex flex-wrap items-center gap-4 mb-2 text-sm">
