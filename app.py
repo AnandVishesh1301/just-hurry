@@ -84,6 +84,38 @@ def create_app():
         result = supplies_collection.insert_one(supplies_data)
         return jsonify({"message": "Supplies saved", "id": str(result.inserted_id)}), 201
     
+    # New route for getting the latest coordinates back from the DB
+    @app.route('/get_coordinates', methods=['GET'])
+    def get_coordinates():
+        # Fetch the latest coordinates (you can adjust the query as needed)
+        latest_coordinate = coordinates_collection.find_one(sort=[('_id', -1)])  # Get the most recent entry
+
+        if latest_coordinate is None:
+            return jsonify({"error": "No coordinates found"}), 404
+
+        # Convert ObjectId to string
+        latest_coordinate["_id"] = str(latest_coordinate["_id"])
+        print(latest_coordinate)
+
+        return jsonify(latest_coordinate), 200
+    
+    
+    # New route for getting supplies
+    @app.route('/get_supplies', methods=['GET'])
+    def get_supplies():
+        print("Get supplies route fired")
+        
+        # Fetch the latest supply entry
+        latest_supply = supplies_collection.find_one(sort=[('_id', -1)])  # Sort by _id in descending order to get the latest
+
+        if latest_supply is None:
+            return jsonify({"error": "No supplies found"}), 404
+        # Convert ObjectId to string
+        latest_supply['_id'] = str(latest_supply['_id'])
+        print(latest_supply)
+
+        return jsonify(latest_supply), 200
+        
     return app
 
 
