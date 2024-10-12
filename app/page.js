@@ -61,9 +61,9 @@ export default function Relief() {
                     />
                     <button
                         type="submit"
-                        className="w-64 h-12 text-white font-bold rounded-lg shadow-lg bg-blue-500 hover:bg-blue-600 active:bg-blue-700 transition duration-300"
+                        className="w-64 h-12 text-white font-bold rounded-lg shadow-lg bg-red-500 hover:bg-red-600 active:bg-red-700 transition duration-300"
                     >
-                        Submit Name
+                        Submit
                     </button>
                 </form>
             ) : (
