@@ -6,6 +6,9 @@ import Image from "next/image";
 
 export default function EmergencyDashboard() {
   const [location, setLocation] = useState(null);
+  const [firstName, setFirstName] = useState('');
+  const [lastName, setLastName] = useState('');
+  const [fullName, setFullName] = useState('');
   const [errorMessage, setErrorMessage] = useState(null);
   const [isSOSButtonDisabled, setIsSOSButtonDisabled] = useState(false);
   const [isSOSLoading, setIsSOSLoading] = useState(false);
@@ -157,8 +160,24 @@ export default function EmergencyDashboard() {
             className="bg-white p-6 rounded-lg w-full max-w-md"
           >
             <h2 className="text-xl font-bold mb-4">Request Resources</h2>
-            <p className="mb-4">
-              Please specify the quantities of resources you need.
+            {/* New heading for user details */}
+            <h3 className="text-lg font-semibold mb-4">Please Enter your Details</h3>
+            {/* Input for Full Name */}
+            <div className="mb-4">
+              {/* <label htmlFor="fullName" className="block mb-2">Full Name</label> */}
+              <div className="flex items-center">
+                <input
+                  id="fullName"
+                  type="text"
+                  value={fullName}
+                  onChange={(e) => setFullName(e.target.value)}
+                  className="border rounded px-2 py-1 w-full mr-2"
+                  disabled={isResourceLoading}
+                />
+              </div>
+            </div>
+            <p>
+              <h3 className="text-lg font-semibold mb-4" >Please specify the quantities of resources you need.</h3>
             </p>
             {resourceErrorMessage && (
               <div className="text-center text-red-500 text-sm mb-4">
