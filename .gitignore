@@ -3,3 +3,5 @@ config.ini
 
 # Ignore environment files
 .env
+
+myenv
