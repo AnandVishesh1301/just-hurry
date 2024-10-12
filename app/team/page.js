@@ -48,6 +48,8 @@ export default function Relief() {
         let newAid = newData.aidRequests || [];
         const newVolunteers = newData.volunteer || [];
 
+        console.log("volunteers new: ", newVolunteers);
+
         const daysDictionary = {
           0: "Su",
           1: "M",
@@ -59,21 +61,18 @@ export default function Relief() {
           7: "Sa"  // Added for full week if you need to use 7 as Sunday
         };
 
-        // Ensure that 'daysOfWeek' exists and is an array before mapping over it
-        const formattedVolunteers = newVolunteers.map(volunteer => ({
-          ...volunteer,  // Spread existing properties
-          daysOfWeek: volunteer.daysOfWeek && Array.isArray(volunteer.daysOfWeek)
-            ? volunteer.daysOfWeek.map(day => daysDictionary[day] || day)  // Map daysOfWeek to the new format
-            : []  // Default to an empty array if daysOfWeek is not present
-        }));
-
-        // Log each volunteer's daysOfWeek to inspect it
-        formattedVolunteers.forEach(vol => console.log(vol.daysOfWeek));
+        const formattedVolunteers = newVolunteers.map(vol => {
+          return {
+            ...vol, // Spread existing properties
+            daysOfWeek: vol.daysOfWeek.map(day => daysDictionary[day] || day) // Map daysOfWeek using the daysDictionary
+          };
+        });
 
         // Update state
         setEmergencies(newEmergencies);
         setAidRequests(newAid);
         setVolunteers(formattedVolunteers); // Use formatted volunteers
+        console.log("volunteers: ", formattedVolunteers);
       } catch (error) {
         console.error("Error fetching data: ", error);
       }
@@ -170,11 +169,11 @@ export default function Relief() {
                   >
                     <p className="flex items-center text-sm text-gray-600 mb-1">
                       <Clock size={14} className="mr-1 text-orange-500" />
-                      Hours Available: {volunteer.hoursAvailable}
+                      Hours Available: {volunteer.hours}
                     </p>
                     <p className="flex items-center text-sm text-gray-600 mb-2">
                       <Calendar size={14} className="mr-1 text-orange-500" />
-                      Days: {volunteer.daysAvailable}
+                      Days: {volunteer.daysOfWeek.join(', ')}
                     </p>
                   </Card>
                 ))}
