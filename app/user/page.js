@@ -1,57 +1,61 @@
-import React, { useState } from 'react';
-import axios from 'axios';
-import Image from 'next/image';
-import foodImg from '../../constants/img/food.png';
-import waterImg from '../../constants/img/water.png'; 
-import bedsImg from '../../constants/img/bed.png';
+"use client";
+
+import React, { useState } from "react";
+import axios from "axios";
+import Image from "next/image";
+import foodImg from "../../constants/img/food.png";
+import waterImg from "../../constants/img/water.png";
+import bedsImg from "../../constants/img/bed.png";
 
 export default function Home() {
   const [location, setLocation] = useState(null);
   const [errorMessage, setErrorMessage] = useState(null);
-  const [food, setFood] = useState('');
-  const [water, setWater] = useState('');
-  const [beds, setBeds] = useState('');
-  
+  const [food, setFood] = useState("");
+  const [water, setWater] = useState("");
+  const [beds, setBeds] = useState("");
 
   const handleClick = async () => {
     if (navigator.geolocation) {
       navigator.geolocation.getCurrentPosition(
         async (position) => {
           const { latitude, longitude } = position.coords;
-          
+
           try {
-            response = await axios.post('http://127.0.0.1:5000/save_coordinates', {
-              longitude: longitude,
-              latitude: latitude
-            })
+            response = await axios.post(
+              "http://127.0.0.1:5000/save_coordinates",
+              {
+                longitude: longitude,
+                latitude: latitude,
+              }
+            );
           } catch (error) {
-            console.log("error")
+            console.log("error");
           }
 
           setLocation({ latitude, longitude });
           setErrorMessage(null); // Clear any previous error message
         },
         (error) => {
-          setErrorMessage('Unable to retrieve location. Please try again.');
+          setErrorMessage("Unable to retrieve location. Please try again.");
         }
       );
     } else {
-      setErrorMessage('Geolocation is not supported by your browser.');
+      setErrorMessage("Geolocation is not supported by your browser.");
     }
   };
 
   // New function to handle the submit request
   const handleRequestSubmit = async () => {
     try {
-      const response = await axios.post('http://127.0.0.1:5000/save_supplies', {
+      const response = await axios.post("http://127.0.0.1:5000/save_supplies", {
         food: parseInt(food), // Convert to integer
         water: parseInt(water), // Convert to integer
-        beds: parseInt(beds) // Convert to integer
+        beds: parseInt(beds), // Convert to integer
       });
       console.log(response.data); // Handle the response as needed
     } catch (error) {
       console.error("Error submitting supplies:", error);
-      setErrorMessage('Error submitting supplies. Please try again.');
+      setErrorMessage("Error submitting supplies. Please try again.");
     }
   };
 
@@ -65,16 +69,13 @@ export default function Home() {
         🚨 Emergency 🚨
       </button>
 
-      {location && (
-        <p> Sit tight, help is on the way! </p>
-      )}
+      {location && <p> Sit tight, help is on the way! </p>}
 
       {errorMessage && (
         <div className="text-center text-red-500 text-lg mt-2">
           {errorMessage}
         </div>
       )}
-
 
       {/* Input Fields for Food, Water, Beds */}
       <div className="w-full max-w-xs">
@@ -88,11 +89,7 @@ export default function Home() {
             className="border-2 border-gray-300 rounded px-2 py-1 w-1/2"
             placeholder="Enter food amount"
           />
-          <Image
-            src={foodImg}   
-            alt="Food"
-            className="w-10 h-10 ml-4"
-          />
+          <Image src={foodImg} alt="Food" className="w-10 h-10 ml-4" />
         </div>
         {/* Water Input */}
         <div className="flex justify-between mb-4">
@@ -104,11 +101,7 @@ export default function Home() {
             className="border-2 border-gray-300 rounded px-2 py-1 w-1/2"
             placeholder="Enter water amount"
           />
-          <Image
-            src={waterImg}   
-            alt="Water"
-            className="w-10 h-10 ml-4"
-          />
+          <Image src={waterImg} alt="Water" className="w-10 h-10 ml-4" />
         </div>
         {/* Beds Input */}
         <div className="flex justify-between mb-6">
@@ -120,11 +113,7 @@ export default function Home() {
             className="border-2 border-gray-300 rounded px-2 py-1 w-1/2"
             placeholder="Enter number of beds"
           />
-          <Image
-            src={bedsImg}   
-            alt="Beds"
-            className="w-10 h-10 ml-4"
-          />
+          <Image src={bedsImg} alt="Beds" className="w-10 h-10 ml-4" />
         </div>
 
         {/* Request Button */}
@@ -136,7 +125,6 @@ export default function Home() {
           Submit Request
         </button>
       </div>
-      
     </div>
   );
 }

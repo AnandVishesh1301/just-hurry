@@ -2,7 +2,6 @@ from flask import Flask
 from flask import jsonify
 from flask import request
 from flask_cors import CORS
-from flask_pymongo import PyMongo
 import configparser
 import os
 from pymongo.mongo_client import MongoClient
@@ -21,10 +20,6 @@ def create_app():
     
     # Set the URI for Flask-PyMongo
     app.config["MONGO_URI"] = mongo_uri
-
-    # Initialize PyMongo with the app
-    #mongo = PyMongo(app)
-    
 
     # Ping MongoDB to confirm the connection
     client = MongoClient(mongo_uri, server_api=ServerApi('1'))
@@ -121,4 +116,4 @@ def create_app():
 
 if __name__ == "__main__":
     app = create_app()
-    app.run(debug=True)
+    app.run()
