@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
+import Card from '../components/Card.js';
 
 export default function Relief() {
   const [coordinates, setCoordinates] = useState({
@@ -62,33 +63,7 @@ export default function Relief() {
 
       <div className=" flex flex-row flex-wrap justify-center items-center justify-around mr-24 pr-24">
         <div className="p-4 border rounded-md shadow-md w-2/5">
-          <h2 className="text-xl font-semibold">
-            User Location and Requested Items
-          </h2>
-          <div className="">
-            <p>
-              {" "}
-              Latitude:{" "}
-              {coordinates.latitude !== null
-                ? coordinates.latitude
-                : "Loading..."}{" "}
-              &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Longitude:{" "}
-              {coordinates.longitude !== null
-                ? coordinates.longitude
-                : "Loading..."}
-            </p>
-          </div>
-          <div className="mt-4">
-            <p className="">Requested Items:</p>
-            <p>
-              {" "}
-              Food: {supplies.food !== null ? supplies.food : "Loading..."}{" "}
-              &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Bed:{" "}
-              {supplies.beds !== null ? supplies.beds : "Loading..."}{" "}
-              &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Water:{" "}
-              {supplies.water !== null ? supplies.water : "Loading..."}{" "}
-            </p>
-          </div>
+          <Card lat={coordinates.latitude} long={coordinates.longitude} food={supplies.food} bed={supplies.beds} water={supplies.water}/>
         </div>
         <div className="">
           <p> More info here</p>
