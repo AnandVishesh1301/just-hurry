@@ -93,7 +93,7 @@ export default function Volunteer() {
       ) : (
         <div
           ref={modalRef}
-          className="bg-white p-6 rounded-lg w-full max-w-md shadow-md"
+          className="bg-white p-6 rounded-lg w-full max-w-md shadow-md m-4"
         >
           <h2 className="text-xl font-bold mb-4">Volunteer Form</h2>
           {errorMessage && (
