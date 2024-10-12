@@ -65,10 +65,7 @@ export default function Home() {
       </button>
 
       {location && (
-        <div className="text-center text-lg">
-          <p>Latitude: {location.latitude}</p>
-          <p>Longitude: {location.longitude}</p>
-        </div>
+        <p> Sit tight, help is on the way! </p>
       )}
 
       {errorMessage && (
