@@ -154,7 +154,7 @@ export default function EmergencyDashboard() {
           alt="Logo"
           width={200}
           height={200}
-          className="md:w-32 md:h-32 w-24 h-24 ml-4"
+          className="md:w-32 md:h-32 w-24 h-24"
         />
       </div>
       <div className="flex flex-col sm:flex-row justify-center items-center w-full max-w-md gap-8">
