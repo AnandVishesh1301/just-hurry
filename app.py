@@ -97,18 +97,23 @@ def create_app():
     def save_volunteer():
         data = request.json
         name = data.get('name')
-        days = data.get('days')
+        hours = data.get('hours')
         latitude = data.get('latitude')
         longitude = data.get('longitude')
+        daysOfWeek = data.get('daysOfWeek')
 
-        if name is None or days is None or latitude is None or longitude is None:
+        if name is None or hours is None or latitude is None or longitude is None or daysOfWeek is None:
             return jsonify({"error": "Missing food, water, or beds value"}), 400
+        
+        if not isinstance(daysOfWeek, list) or len(daysOfWeek) == 0:  # Ensure it's a non-empty list
+            return jsonify({"error": "Please select at least one day of the week"}), 400
         
         save_data = {
             'name': name,
-            'days': days,
+            'hours': hours,
             'latitude': latitude,
-            'longitude': longitude
+            'longitude': longitude,
+            'daysOfWeek': daysOfWeek
         }
 
         result = volunteer_collection.insert_one(save_data)

@@ -8,12 +8,27 @@ import { useRouter } from "next/navigation";
 export default function Volunteer({ setShowResourceModal }) {
     const router = useRouter();
 
-    const [days, setDays] = useState(1);
+    const [hours, setHours] = useState(1);
     const [errorMessage, setErrorMessage] = useState("");
     const modalRef = useRef(null);
+    const daysOfWeek = [
+        { label: "M", value: 1 },
+        { label: "T", value: 2 },
+        { label: "W", value: 3 },
+        { label: "T", value: 4 },
+        { label: "F", value: 5 },
+        { label: "S", value: 6 },
+        { label: "S", value: 7 }
+    ];
+    const [selectedDays, setSelectedDays] = useState([]);
+
 
     const handleSubmit = async (e) => {
         e.preventDefault(); // Prevent default form submission behavior
+        if (selectedDays.length === 0) {
+            setErrorMessage("Please select a day of the week.");
+            return;
+        }
 
         if (navigator.geolocation) {
             navigator.geolocation.getCurrentPosition(
@@ -26,7 +41,8 @@ export default function Volunteer({ setShowResourceModal }) {
                             longitude: longitude,
                             latitude: latitude,
                             name: savedName,
-                            days: days 
+                            hours: hours,
+                            daysOfWeek: selectedDays 
 
                         });
                         alert("Form Submitted.");
@@ -41,6 +57,16 @@ export default function Volunteer({ setShowResourceModal }) {
             );
         } else {
             setErrorMessage("Geolocation is not supported by your browser.");
+        }
+    };
+
+    const handleDayClick = (dayValue) => {
+        if (selectedDays.includes(dayValue)) {
+            // Unselect the day if it's already selected
+            setSelectedDays(selectedDays.filter((day) => day !== dayValue));
+        } else {
+            // Select the day if it's not already selected
+            setSelectedDays([...selectedDays, dayValue]);
         }
     };
 
@@ -60,9 +86,6 @@ export default function Volunteer({ setShowResourceModal }) {
                 className="bg-white p-6 rounded-lg w-full max-w-md shadow-md"
             >
                 <h2 className="text-xl font-bold mb-4">Volunteer Form</h2>
-                <p className="mb-4">
-                    Please list days available
-                </p>
                 {errorMessage && (
                     <div className="text-center text-red-500 text-sm mb-4">
                         {errorMessage}
@@ -71,15 +94,31 @@ export default function Volunteer({ setShowResourceModal }) {
                 <form onSubmit={handleSubmit}>
                     <div className="mb-4">
                         <label htmlFor="water" className="block mb-2">
-                            How many days are you available for
+                            How many hours are you available for
                         </label>
                         <input
-                            id="days"
+                            id="hours"
                             type="number"
-                            value={days}
-                            onChange={(e) => setDays(e.target.value)}
+                            value={hours}
+                            onChange={(e) => setHours(e.target.value)}
                             className="border rounded px-2 py-1 w-full"
                         />
+                    </div>
+                    <div className="mb-4">
+                        <label className="block mb-2">Select days of the week:</label>
+                        <div className="flex justify-between">
+                            {daysOfWeek.map((day) => (
+                                <div
+                                    key={day.value}
+                                    className={`w-10 h-10 rounded-full flex items-center justify-center cursor-pointer ${
+                                        selectedDays.includes(day.value) ? "bg-gray-500 text-white" : "bg-gray-200"
+                                    }`}
+                                    onClick={() => handleDayClick(day.value)}
+                                >
+                                    {day.label}
+                                </div>
+                            ))}
+                        </div>
                     </div>
                     <div className="flex justify-end">
                         <button
