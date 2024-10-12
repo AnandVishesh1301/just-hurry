@@ -95,16 +95,16 @@ def create_app():
     def save_volunteer():
         data = request.json
         name = data.get('name')
-        days = data.get('days')
+        hours = data.get('hours')
         latitude = data.get('latitude')
         longitude = data.get('longitude')
 
-        if name is None or days is None or latitude is None or longitude is None:
+        if name is None or hours is None or latitude is None or longitude is None:
             return jsonify({"error": "Missing food, water, or beds value"}), 400
         
         save_data = {
             'name': name,
-            'days': days,
+            'hours': hours,
             'latitude': latitude,
             'longitude': longitude
         }

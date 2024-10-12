@@ -8,7 +8,7 @@ import { useRouter } from "next/navigation";
 export default function Volunteer({ setShowResourceModal }) {
     const router = useRouter();
 
-    const [days, setDays] = useState(1);
+    const [hours, setHours] = useState(1);
     const [errorMessage, setErrorMessage] = useState("");
     const modalRef = useRef(null);
 
@@ -26,7 +26,7 @@ export default function Volunteer({ setShowResourceModal }) {
                             longitude: longitude,
                             latitude: latitude,
                             name: savedName,
-                            days: days 
+                            hours: hours 
 
                         });
                         alert("Form Submitted.");
@@ -71,13 +71,13 @@ export default function Volunteer({ setShowResourceModal }) {
                 <form onSubmit={handleSubmit}>
                     <div className="mb-4">
                         <label htmlFor="water" className="block mb-2">
-                            How many days are you available for
+                            How many hours are you available for
                         </label>
                         <input
-                            id="days"
+                            id="hours"
                             type="number"
-                            value={days}
-                            onChange={(e) => setDays(e.target.value)}
+                            value={hours}
+                            onChange={(e) => setHours(e.target.value)}
                             className="border rounded px-2 py-1 w-full"
                         />
                     </div>
