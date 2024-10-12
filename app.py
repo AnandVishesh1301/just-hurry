@@ -37,6 +37,7 @@ def create_app():
         
     db = client.get_database("Coordinates")
     coordinates_collection = db.get_collection("Location")
+    supplies_collection = db.get_collection("Supplies")
     
     # Define a route for saving coordinates
     @app.route('/save_coordinates', methods=['POST'])
@@ -61,6 +62,27 @@ def create_app():
         print(result)
         
         return jsonify({"message": "Location saved", "id": str(result.inserted_id)}), 201
+    
+    # New route for saving supplies
+    @app.route('/save_supplies', methods=['POST'])
+    def save_supplies():
+        print("Supplies route fired")
+        data = request.json
+        food = data.get('food')
+        water = data.get('water')
+        beds = data.get('beds')
+
+        if food is None or water is None or beds is None:
+            return jsonify({"error": "Missing food, water, or beds value"}), 400
+
+        supplies_data = {
+            "food": food,
+            "water": water,
+            "beds": beds
+        }
+
+        result = supplies_collection.insert_one(supplies_data)
+        return jsonify({"message": "Supplies saved", "id": str(result.inserted_id)}), 201
     
     return app
 
