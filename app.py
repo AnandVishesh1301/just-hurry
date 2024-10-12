@@ -75,8 +75,9 @@ def create_app():
         name = data.get('name')
         latitude = data.get('latitude')
         longitude = data.get('longitude')
+        purpose = data.get('purpose')
 
-        if food is None or water is None or beds is None or name is None:
+        if food is None or water is None or beds is None or name is None or purpose is None:
             return jsonify({"error": "Missing food, water, or beds value"}), 400
 
         supplies_data = {
@@ -85,7 +86,8 @@ def create_app():
             "beds": beds,
             "name": name,
             'latitude': latitude,
-            'longitude': longitude
+            'longitude': longitude,
+            'purpose': purpose
         }
 
         result = supplies_collection.insert_one(supplies_data)
