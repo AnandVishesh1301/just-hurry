@@ -10,7 +10,7 @@ function ChatBot() {
   const [isTyping, setIsTyping] = useState(false);
   const [isOpen, setIsOpen] = useState(false);
 
-  const API_KEY = process.env.REACT_APP_OPENAI_KEY;
+  const API_KEY = process.env.NEXT_PUBLIC_OPENAI_KEY;
   console.log("open ai key: ", API_KEY);
 
   const handleSend = async (message) => {
