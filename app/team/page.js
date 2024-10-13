@@ -51,60 +51,61 @@ export default function Relief() {
   const [beds, setBeds] = useState(null);
   const [water, setWater] = useState(null);
 
-  useEffect(() => {
-    const getData = async () => {
-      try {
-        const available = await axios.get("http://127.0.0.1:5000/get_available");
-        setFood(available.data.food);
-        setBeds(available.data.bed);
-        setWater(available.data.water);
-        // Fetch data from the API
-        const response = await axios.get("http://127.0.0.1:5000/get_all");
-        const newData = response.data; // Access the 'data' field from Axios response
+  const getData = async () => {
+    try {
+      const available = await axios.get("http://127.0.0.1:5000/get_available");
+      setFood(available.data.food);
+      setBeds(available.data.bed);
+      setWater(available.data.water);
+      // Fetch data from the API
+      const response = await axios.get("http://127.0.0.1:5000/get_all");
+      const newData = response.data; // Access the 'data' field from Axios response
 
-        console.log("data: ", newData);
-        const newEmergencies = newData.emergencies || [];
-        let newAid = newData.aidRequests || [];
-        const newVolunteers = newData.volunteer || [];
+      console.log("data: ", newData);
+      const newEmergencies = newData.emergencies || [];
+      let newAid = newData.aidRequests || [];
+      const newVolunteers = newData.volunteer || [];
 
-        console.log("volunteers new: ", newVolunteers);
+      console.log("volunteers new: ", newVolunteers);
 
-        const daysDictionary = {
-          0: "Su",
-          1: "M",
-          2: "Tu",
-          3: "W",
-          4: "Th",
-          5: "F",
-          6: "Sa",
-          7: "Sa", // Added for full week if you need to use 7 as Sunday
+      const daysDictionary = {
+        0: "Su",
+        1: "M",
+        2: "Tu",
+        3: "W",
+        4: "Th",
+        5: "F",
+        6: "Sa",
+        7: "Sa", // Added for full week if you need to use 7 as Sunday
+      };
+
+      const formattedVolunteers = newVolunteers.map(vol => {
+        return {
+          ...vol, // Spread existing properties
+          daysOfWeek: vol.daysOfWeek.map(day => daysDictionary[day] || day) // Map daysOfWeek using the daysDictionary
         };
+      });
 
-        const formattedVolunteers = newVolunteers.map(vol => {
-          return {
-            ...vol, // Spread existing properties
-            daysOfWeek: vol.daysOfWeek.map(day => daysDictionary[day] || day) // Map daysOfWeek using the daysDictionary
-          };
-        });
-
-        // Update state
-        setEmergencies(newEmergencies);
-        setAidRequests(newAid);
-        setVolunteers(formattedVolunteers); // Use formatted volunteers
-        console.log("volunteers: ", formattedVolunteers);
-      } catch (error) {
-        console.error("Error fetching data: ", error);
-      }
-    };
+      // Update state
+      setEmergencies(newEmergencies);
+      setAidRequests(newAid);
+      setVolunteers(formattedVolunteers); // Use formatted volunteers
+      console.log("volunteers: ", formattedVolunteers);
+    } catch (error) {
+      console.error("Error fetching data: ", error);
+    }
+  };
+  
+  useEffect(() => {
 
     getData();
   }, []);
 
   const handleAllocate = async (postId) => {
-    respose = await axios.post("http://127.0.0.1:5000/allocate", {
-      _id: postId
-    });
-    console.log("response from allocate: ", response);
+    console.log("postId: ", postId);
+    const response = await axios.get(`http://127.0.0.1:5000/allocate?id=${postId}`)
+    console.log("response: ", response)
+    getData();
   }
 
   return (
@@ -206,7 +207,7 @@ export default function Relief() {
                     </p>
                     {/* Allocate Button */}
                     <button
-                      onClick={(request) => handleAllocate(request._id)}
+                      onClick={() => handleAllocate(request._id)}
                       className="absolute bottom-2 right-2 bg-orange-200 hover:bg-orange-300 text-orange-700 font-semibold py-1 px-2 rounded text-xs"
                     >
                       Allocate

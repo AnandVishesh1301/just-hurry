@@ -202,11 +202,10 @@ def create_app():
         return jsonify(returnDict), 200
     
     # post allocation of resources to a specific supplies needed post
-    @app.route('/allocate', methods=['POST'])
+    @app.route('/allocate', methods=['GET'])
     def allocate():
-        data = request.json
-        print("data: ", data)
-        postId = ObjectId(data["_id"])
+        postId = ObjectId(request.args.get('id'))
+        print("post Id: ", postId)
 
         print("post: ", postId)
 
