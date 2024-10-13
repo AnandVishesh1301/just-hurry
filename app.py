@@ -214,6 +214,7 @@ def create_app():
 
 
         ## post["food"], post["water"], and post["beds"] will return the resources requested in said instance. 
+        ## Lat and long are in post["latitude"] and post["longitude"]
 
         # placeholder code allocates whatever was requested and returns a confirmation
         allocatedFood = post["food"]
