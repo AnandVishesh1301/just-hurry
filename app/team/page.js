@@ -46,9 +46,18 @@ export default function Relief() {
   const [aidRequests, setAidRequests] = useState([]);
   const [volunteers, setVolunteers] = useState([]);
 
+  // available resources
+  const [food, setFood] = useState(null);
+  const [beds, setBeds] = useState(null);
+  const [water, setWater] = useState(null);
+
   useEffect(() => {
     const getData = async () => {
       try {
+        const available = await axios.get("http://127.0.0.1:5000/get_available");
+        setFood(available.data.food);
+        setBeds(available.data.bed);
+        setWater(available.data.water);
         // Fetch data from the API
         const response = await axios.get("http://127.0.0.1:5000/get_all");
         const newData = response.data; // Access the 'data' field from Axios response
@@ -90,6 +99,13 @@ export default function Relief() {
 
     getData();
   }, []);
+
+  const handleAllocate = async (postId) => {
+    respose = await axios.post("http://127.0.0.1:5000/allocate", {
+      _id: postId
+    });
+    console.log("response from allocate: ", response);
+  }
 
   return (
     <div className="min-h-screen bg-gray-100 font-sans">
@@ -147,15 +163,15 @@ export default function Relief() {
                   <div className="flex gap-4">
                     <div className="flex items-center">
                       <Package size={16} className="mr-1 text-orange-500" />
-                      <span>100</span> {/* Static value for food */}
+                      <span>{food}</span> {/* Static value for food */}
                     </div>
                     <div className="flex items-center">
                       <Droplet size={16} className="mr-1 text-blue-500" />
-                      <span>100</span> {/* Static value for water */}
+                      <span>{beds}</span> {/* Static value for water */}
                     </div>
                     <div className="flex items-center">
                       <Bed size={16} className="mr-1 text-green-500" />
-                      <span>100</span> {/* Static value for beds */}
+                      <span>{water}</span> {/* Static value for beds */}
                     </div>
                   </div>
                 </div>
@@ -190,6 +206,7 @@ export default function Relief() {
                     </p>
                     {/* Allocate Button */}
                     <button
+                      onClick={(request) => handleAllocate(request._id)}
                       className="absolute bottom-2 right-2 bg-orange-200 hover:bg-orange-300 text-orange-700 font-semibold py-1 px-2 rounded text-xs"
                     >
                       Allocate
