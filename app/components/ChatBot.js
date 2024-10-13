@@ -4,6 +4,7 @@ import React, { useState } from 'react';
 import axios from 'axios';
 import { MainContainer, ChatContainer, MessageList, Message, MessageInput, TypingIndicator } from '@chatscope/chat-ui-kit-react';
 import '@chatscope/chat-ui-kit-styles/dist/default/styles.min.css';
+import { BiXCircle } from "react-icons/bi";
 
 function ChatBot() {
   const [messages, setMessages] = useState([]);
@@ -29,7 +30,10 @@ function ChatBot() {
         "https://api.openai.com/v1/chat/completions", 
         {
           model: "gpt-3.5-turbo",
-          messages: [{role: "user", content: message}],
+          messages: [
+            { role: "system", content: "You are a hurricane releif assitant. Your goal is to help people who are facing a hurricane disaster by guiding them to safety." }, // System message or custom prompt
+            { role: "user", content: message }          // User's message
+          ],
         },
         {
           headers: {
@@ -73,9 +77,9 @@ function ChatBot() {
         </button>
       ) : (
         <div style={{ width: '350px', height: '500px' }}>
-          <MainContainer>
+          <MainContainer style={{borderRadius: "4vh", flexDirection: 'column', paddingLeft: "1vw", paddingRight: "1vw"}}>
             <ChatContainer>
-              <MessageList>
+              <MessageList style={{paddingTop: "8vh"}}>
                 {messages.map((message, i) => (
                   <Message 
                     key={i} 
@@ -87,21 +91,20 @@ function ChatBot() {
               </MessageList>
               <MessageInput placeholder="Type message here" onSend={handleSend} />
             </ChatContainer>
-          </MainContainer>
           <button 
             onClick={() => setIsOpen(false)}
             style={{
-              position: 'absolute',
-              top: '10px',
-              right: '10px',
+              marginTop: '1vh',
+              marginLeft: '-0.5vw',
               background: 'none',
               border: 'none',
               fontSize: '20px',
-              cursor: 'pointer'
+              cursor: 'pointer',
+              width: '6vh',
+              height: '6vh',
             }}
-          >
-            ✖
-          </button>
+              > <BiXCircle size={'6vh'} color='#2596be' /></button>
+          </MainContainer>
         </div>
       )}
     </div>
