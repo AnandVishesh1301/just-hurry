@@ -79,7 +79,7 @@ function ChatBot() {
         <div style={{ width: '350px', height: '500px' }}>
           <MainContainer style={{borderRadius: "4vh", flexDirection: 'column', paddingLeft: "1vw", paddingRight: "1vw"}}>
             <ChatContainer>
-              <MessageList style={{paddingTop: "8vh"}}>
+              <MessageList style={{paddingTop: "0.5vh"}}>
                 {messages.map((message, i) => (
                   <Message 
                     key={i} 
