@@ -6,6 +6,7 @@ import configparser
 import os
 from pymongo.mongo_client import MongoClient
 from pymongo.server_api import ServerApi
+from bson.objectid import ObjectId
 
 def create_app():
     app = Flask(__name__)
@@ -34,6 +35,7 @@ def create_app():
     coordinates_collection = db.get_collection("Location")
     supplies_collection = db.get_collection("Supplies")
     volunteer_collection = db.get_collection('Volunteers')
+    available_collection = db.get_collection("Available")
     
     # Define a route for saving coordinates
     @app.route('/save_coordinates', methods=['POST'])
@@ -185,6 +187,45 @@ def create_app():
 
         # Return the response as JSON
         return jsonify(returnDict), 200
+    
+
+    # get available resources
+    @app.route('/get_available')
+    def get_available():
+        available = available_collection.find_one()
+
+        returnDict = {
+            "food": available["food"],
+            "bed": available["bed"],
+            "water": available["water"]
+        }
+        return jsonify(returnDict), 200
+    
+    # post allocation of resources to a specific supplies needed post
+    @app.route('/allocate', methods=['POST'])
+    def allocate():
+        data = request.json
+        postId = ObjectId(data["_id"])
+
+        print("post: ", postId)
+
+        post = supplies_collection.find_one({"_id": postId})
+        available = available_collection.find_one()
+
+
+        ## post["food"], post["water"], and post["beds"] will return the resources requested in said instance. 
+
+        # placeholder code allocates whatever was requested and returns a confirmation
+        allocatedFood = post["food"]
+        allocatedWater = post["water"]
+        allocatedBeds = post["beds"]
+
+        supplies_collection.update_one({"_id": postId}, {"$set": {"food": allocatedFood, "beds": allocatedBeds, "water": allocatedWater, "allocated": True}})
+        available_collection.update_one(
+            {"_id": available["_id"]}, 
+            {"$set": {"food": available["food"]-allocatedFood, "bed": available["bed"]-allocatedBeds, "water": available["water"]-allocatedWater}})
+
+        return jsonify({"food": allocatedFood, "beds": allocatedBeds, "water": allocatedWater}), 200
 
 
         
