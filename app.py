@@ -7,6 +7,9 @@ import os
 from pymongo.mongo_client import MongoClient
 from pymongo.server_api import ServerApi
 from bson.objectid import ObjectId
+import math
+from math import radians, sin, cos, sqrt, atan2
+import pandas as pd
 
 def create_app():
     app = Flask(__name__)
@@ -212,24 +215,71 @@ def create_app():
         post = supplies_collection.find_one({"_id": postId})
         available = available_collection.find_one()
 
+        # post["food"], post["water"], and post["beds"] will return the resources requested in said instance. 
+        # lat and long are in post["latitude"] and post["longitude"]
 
-        ## post["food"], post["water"], and post["beds"] will return the resources requested in said instance. 
-        ## Lat and long are in post["latitude"] and post["longitude"]
+        def haversine_distance(lat1, lon1, lat2, lon2):
+            R = 6371  # Earth's radius in kilometers
 
-        # placeholder code allocates whatever was requested and returns a confirmation
+            lat1, lon1, lat2, lon2 = map(radians, [lat1, lon1, lat2, lon2])
+            dlat = lat2 - lat1
+            dlon = lon2 - lon1
+
+            a = sin(dlat/2)**2 + cos(lat1) * cos(lat2) * sin(dlon/2)**2
+            c = 2 * atan2(sqrt(a), sqrt(1-a))
+            distance = R * c
+
+            return distance
+
+        def calculate_final_user_value(risk_percentage, initial_value):
+            if risk_percentage < 0.6:
+                return math.ceil(risk_percentage * initial_value)
+            else:
+                return initial_value + ((risk_percentage - 0.6) * 20)
+
+        # Read the dataset
+        df = pd.read_excel("final_dataset.xlsx")
+
+        # User's latitude and longitude
+        latitude_user = post["latitude"]
+        longitude_user = post["longitude"]
+
+        # Calculate distances and store with risk percentages
+        distances = {}
+        for index, row in df.iterrows():
+            distance = haversine_distance(latitude_user, longitude_user, row['latitude'], row['longitude'])
+            distances[distance] = row['Risk Percentage']
+
+        # Find the minimum distance and get the corresponding risk percentage
+        min_distance = min(distances.keys())
+        risk_percentage = distances[min_distance]
+
+        # Initial values
         allocatedFood = post["food"]
         allocatedWater = post["water"]
         allocatedBeds = post["beds"]
 
-        supplies_collection.update_one({"_id": postId}, {"$set": {"food": allocatedFood, "beds": allocatedBeds, "water": allocatedWater, "allocated": True}})
+        availableFood = available["food"]
+        availableWater = available["water"]
+        availableBeds = available["beds"]
+
+        # Calculate final user values
+        final_user_food = calculate_final_user_value(risk_percentage, allocatedFood)
+        final_user_water = calculate_final_user_value(risk_percentage, allocatedWater)
+        final_user_beds = calculate_final_user_value(risk_percentage, allocatedBeds)
+
+        # Calculate remaining team resources
+        remaining_team_food = availableFood - final_user_food
+        remaining_team_water = availableWater - final_user_water
+        remaining_team_beds = availableBeds - final_user_beds
+
+        supplies_collection.update_one({"_id": postId}, {"$set": {"food": final_user_food, "beds": final_user_beds, "water": final_user_water, "allocated": True}})
         available_collection.update_one(
             {"_id": available["_id"]}, 
-            {"$set": {"food": available["food"]-allocatedFood, "bed": available["bed"]-allocatedBeds, "water": available["water"]-allocatedWater}})
+            {"$set": {"food": remaining_team_food, "bed": remaining_team_beds, "water": remaining_team_water}})
 
-        return jsonify({"food": allocatedFood, "beds": allocatedBeds, "water": allocatedWater}), 200
-
-
-        
+        return jsonify({"food": final_user_food, "beds": final_user_beds, "water": final_user_water}), 200
+    
     return app
 
 
