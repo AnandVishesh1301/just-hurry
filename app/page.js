@@ -4,6 +4,7 @@ import React, { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
 import ChatBot from "./components/ChatBot";
+import { motion } from "framer-motion";
 
 export default function Relief() {
   const router = useRouter();
@@ -36,7 +37,10 @@ export default function Relief() {
 
   return (
     <div className="flex flex-col items-center justify-center min-h-screen bg-gray-100">
-      <div
+      <motion.div
+        initial={{ opacity: 0, scale: 0.5 }}
+        animate={{ opacity: 1, scale: 1 }}
+        transition={{ duration: 0.5 }}
         className="absolute top-4 left-4 cursor-pointer"
         onClick={() => router.push("/")}
       >
@@ -47,13 +51,19 @@ export default function Relief() {
           height={200}
           className="md:w-32 md:h-32 w-24 h-24 ml-4"
         />
-      </div>
+      </motion.div>
       {!submitted ? (
-        <form
+        <motion.form
+          initial={{ opacity: 0, y: 50 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5 }}
           onSubmit={handleNameSubmit}
           className="mb-6 flex flex-col items-center"
         >
-          <input
+          <motion.input
+            initial={{ opacity: 0, x: -50 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ duration: 0.5, delay: 0.2 }}
             type="text"
             value={name}
             onChange={(e) => setName(e.target.value)}
@@ -61,33 +71,54 @@ export default function Relief() {
             className="border border-gray-300 rounded-lg px-4 py-2 w-64 mb-2"
             required
           />
-          <div className="mt-auto">
+          <motion.div
+            initial={{ opacity: 0, x: 50 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ duration: 0.5, delay: 0.4 }}
+            className="mt-auto"
+          >
             <button
               type="submit"
               className="w-32 h-10 mt-4 text-white font-bold rounded-lg shadow-lg bg-red-500 hover:bg-red-600 active:bg-red-700 transition duration-300"
             >
               Submit
             </button>
-          </div>
-        </form>
+          </motion.div>
+        </motion.form>
       ) : (
-        <div className="flex flex-col gap-6 items-center">
-          <h1 className="text-3xl font-bold mb-8 max-w-lg text-center">
+        <motion.div
+          initial={{ opacity: 0, y: 50 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5 }}
+          className="flex flex-col gap-6 items-center"
+        >
+          <motion.h1
+            initial={{ opacity: 0, y: -50 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5, delay: 0.2 }}
+            className="text-3xl font-bold mb-8 max-w-lg text-center"
+          >
             Welcome, {name}!
-          </h1>
-          <button
+          </motion.h1>
+          <motion.button
+            initial={{ opacity: 0, x: -50 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ duration: 0.5, delay: 0.4 }}
             onClick={handleClientClick}
             className="w-64 h-16 text-white font-bold text-xl rounded-lg shadow-lg bg-red-500 hover:bg-red-600 active:bg-red-700 transition duration-300"
           >
             Get Help
-          </button>
-          <button
+          </motion.button>
+          <motion.button
+            initial={{ opacity: 0, x: 50 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ duration: 0.5, delay: 0.6 }}
             onClick={handleTeamClick}
             className="w-64 h-16 text-white font-bold text-xl rounded-lg shadow-lg bg-orange-400 hover:bg-orange-500 active:bg-orange-600 transition duration-300"
           >
             Volunteer
-          </button>
-        </div>
+          </motion.button>
+        </motion.div>
       )}
       <ChatBot />
     </div>
