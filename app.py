@@ -7,6 +7,9 @@ import os
 from pymongo.mongo_client import MongoClient
 from pymongo.server_api import ServerApi
 from bson.objectid import ObjectId
+import pandas as pd
+import math
+from math import radians, cos, sin, sqrt, atan2
 
 def create_app():
     app = Flask(__name__)
@@ -162,10 +165,13 @@ def create_app():
             emergency["_id"] = str(emergency["_id"])  
             emergency["id"] = emergency["_id"] 
 
-        
+        non_allocated_list = []
         for aidRequest in aidRequests:
             aidRequest["_id"] = str(aidRequest["_id"])  
-            aidRequest["id"] = aidRequest["_id"]  
+            aidRequest["id"] = aidRequest["_id"]
+            allocated = aidRequest.get("allocated")
+            if not allocated:
+                non_allocated_list.append(aidRequest)
 
         for vol in volunteer:
             vol["_id"] = str(vol["_id"])  
@@ -173,7 +179,7 @@ def create_app():
 
         returnDict = {
             'emergencies': emergencies,
-            'aidRequests': aidRequests,
+            'aidRequests': non_allocated_list,
             'volunteer': volunteer
         }
 
@@ -200,24 +206,87 @@ def create_app():
         post = supplies_collection.find_one({"_id": postId})
         available = available_collection.find_one()
 
-
         ## post["food"], post["water"], and post["beds"] will return the resources requested in said instance. 
         ## Lat and long are in post["latitude"] and post["longitude"]
+        # Haversine formula to calculate the distance between two lat/lon points
+        def haversine(lat1, lon1, lat2, lon2):
+            R = 6371.0  # Radius of the Earth in kilometers
+            lat1 = radians(lat1)
+            lon1 = radians(lon1)
+            lat2 = radians(lat2)
+            lon2 = radians(lon2)
+            
+            dlon = lon2 - lon1
+            dlat = lat2 - lat1
 
-        # placeholder code allocates whatever was requested and returns a confirmation
-        allocatedFood = post["food"]
-        allocatedWater = post["water"]
-        allocatedBeds = post["beds"]
+            a = sin(dlat / 2)**2 + cos(lat1) * cos(lat2) * sin(dlon / 2)**2
+            c = 2 * atan2(sqrt(a), sqrt(1 - a))
 
-        supplies_collection.update_one({"_id": postId}, {"$set": {"food": allocatedFood, "beds": allocatedBeds, "water": allocatedWater, "allocated": True}})
+            distance = R * c
+            return distance
+
+        # Load the dataset
+        df = pd.read_excel('final_dataset.xlsx')
+
+        # User's coordinates
+        latitude_user = post["latitude"]
+        longitude_user = post["longitude"]
+
+        # Dictionary to store distances and risk percentage
+        distance_risk_map = {}
+
+        # Iterate over each row to calculate haversine distance and store in the dictionary
+        for index, row in df.iterrows():
+            lat = row['Latitude']
+            lon = row['Longitude']
+            risk_percentage = row['Risk Percentage']
+            
+            distance = haversine(latitude_user, longitude_user, lat, lon)
+            distance_risk_map[distance] = risk_percentage
+
+        # Find the minimum distance and corresponding risk percentage
+        min_distance = min(distance_risk_map)
+        risk_percentage = distance_risk_map[min_distance]
+
+        # Initial values for user and team (food, water, beds)
+        initial_user_food = post["food"]
+        initial_user_water = post["water"]
+        initial_user_beds = post["beds"]
+
+        initial_team_food = available["food"]
+        initial_team_water = available["water"]
+        initial_team_beds = available["bed"]
+
+        # Function to calculate final_user_x
+        def calculate_final_value(risk_percentage, initial_value):
+            if risk_percentage < 0.6:
+                return math.ceil(risk_percentage * initial_value)
+            else:
+                return initial_value + ((risk_percentage - 0.6) * 20)
+
+        # Calculate final values for user
+        final_user_food = calculate_final_value(risk_percentage, initial_user_food)
+        final_user_water = calculate_final_value(risk_percentage, initial_user_water)
+        final_user_beds = calculate_final_value(risk_percentage, initial_user_beds)
+
+        # Subtract final_user_x values from initial_team_x values
+        remaining_team_food = initial_team_food - final_user_food
+        remaining_team_water = initial_team_water - final_user_water
+        remaining_team_beds = initial_team_beds - final_user_beds
+
+        supplies_collection.update_one({"_id": postId}, {"$set": {"food": final_user_food, "beds": final_user_beds, "water": final_user_water, "allocated": True}})
         available_collection.update_one(
             {"_id": available["_id"]}, 
-            {"$set": {"food": available["food"]-allocatedFood, "bed": available["bed"]-allocatedBeds, "water": available["water"]-allocatedWater}})
+            {"$set": {"food": remaining_team_food, "bed": remaining_team_beds, "water": remaining_team_water}})
+        return jsonify({"food": final_user_food, "beds": final_user_beds, "water": final_user_water}), 200
 
-        return jsonify({"food": allocatedFood, "beds": allocatedBeds, "water": allocatedWater}), 200
+    @app.route("/check_allocated", methods=["GET"])
+    def check_allocated():
+        postId = ObjectId(request.args.get('id'))
+        post_info = supplies_collection.find_one({"_id": postId})
+        post_info["_id"] = str(post_info["_id"])
+        return jsonify(post_info), 200
 
-
-        
     return app
 
 

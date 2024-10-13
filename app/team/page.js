@@ -17,12 +17,13 @@ const EmergencyCard = ({ name, latitude, longitude }) => (
     whileInView={{ opacity: 1, y: 0 }}
     viewport={{ once: true }}
     transition={{ duration: 0.5 }}
-    className="bg-red-100 ro  unded-lg shadow-md p-3 flex flex-col justify-between hover:bg-red-200 transition-colors duration-200"
+    className="bg-red-100 rounded-lg shadow-md p-3 flex flex-col justify-between hover:bg-red-200 transition-colors duration-200"
   >
     <h3 className="text-md font-semibold text-gray-800">{name}</h3>
     <div className="text-sm text-gray-600">
       <p className="flex items-center">
-        <MapPin size={14} className="mr-1 text-red-500" /> {latitude.toFixed(4)}, {longitude.toFixed(4)}
+        <MapPin size={14} className="mr-1 text-red-500" /> {latitude.toFixed(4)}
+        , {longitude.toFixed(4)}
       </p>
     </div>
   </motion.div>
@@ -79,10 +80,10 @@ export default function Relief() {
         7: "Sa", // Added for full week if you need to use 7 as Sunday
       };
 
-      const formattedVolunteers = newVolunteers.map(vol => {
+      const formattedVolunteers = newVolunteers.map((vol) => {
         return {
           ...vol, // Spread existing properties
-          daysOfWeek: vol.daysOfWeek.map(day => daysDictionary[day] || day) // Map daysOfWeek using the daysDictionary
+          daysOfWeek: vol.daysOfWeek.map((day) => daysDictionary[day] || day), // Map daysOfWeek using the daysDictionary
         };
       });
 
@@ -95,18 +96,19 @@ export default function Relief() {
       console.error("Error fetching data: ", error);
     }
   };
-  
-  useEffect(() => {
 
+  useEffect(() => {
     getData();
   }, []);
 
   const handleAllocate = async (postId) => {
     console.log("postId: ", postId);
-    const response = await axios.get(`http://127.0.0.1:5000/allocate?id=${postId}`)
-    console.log("response: ", response)
+    const response = await axios.get(
+      `http://127.0.0.1:5000/allocate?id=${postId}`
+    );
+    console.log("response: ", response);
     getData();
-  }
+  };
 
   return (
     <div className="min-h-screen bg-gray-100 font-sans">
@@ -160,7 +162,9 @@ export default function Relief() {
                 </h2>
                 {/* New "Availability" section */}
                 <div className="text-right">
-                  <h3 className="text-sm font-medium text-gray-600 mb-1">Availability</h3>
+                  <h3 className="text-sm font-medium text-gray-600 mb-1">
+                    Availability
+                  </h3>
                   <div className="flex gap-4">
                     <div className="flex items-center">
                       <Package size={16} className="mr-1 text-orange-500" />
@@ -177,8 +181,7 @@ export default function Relief() {
                   </div>
                 </div>
               </div>
-              
-            
+
               <div className="space-y-4 overflow-y-auto max-h-[calc(50vh-2rem)]">
                 {aidRequests.map((request) => (
                   <Card
@@ -233,7 +236,7 @@ export default function Relief() {
                     </p>
                     <p className="flex items-center text-sm text-gray-600 mb-2">
                       <Calendar size={14} className="mr-1 text-orange-500" />
-                      Days: {volunteer.daysOfWeek.join(', ')}
+                      Days: {volunteer.daysOfWeek.join(", ")}
                     </p>
                   </Card>
                 ))}
