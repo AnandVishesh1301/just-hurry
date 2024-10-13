@@ -208,6 +208,7 @@ def create_app():
     @app.route('/allocate', methods=['POST'])
     def allocate():
         data = request.json
+        print("data: ", data)
         postId = ObjectId(data["_id"])
 
         print("post: ", postId)

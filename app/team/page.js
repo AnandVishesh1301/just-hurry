@@ -46,9 +46,18 @@ export default function Relief() {
   const [aidRequests, setAidRequests] = useState([]);
   const [volunteers, setVolunteers] = useState([]);
 
+  // available resources
+  const [food, setFood] = useState(null);
+  const [beds, setBeds] = useState(null);
+  const [water, setWater] = useState(null);
+
   useEffect(() => {
     const getData = async () => {
       try {
+        const available = await axios.get("http://127.0.0.1:5000/get_available");
+        setFood(available.data.food);
+        setBeds(available.data.bed);
+        setWater(available.data.water);
         // Fetch data from the API
         const response = await axios.get("http://127.0.0.1:5000/get_all");
         const newData = response.data; // Access the 'data' field from Axios response
@@ -90,6 +99,13 @@ export default function Relief() {
 
     getData();
   }, []);
+
+  const handleAllocate = async (postId) => {
+    respose = await axios.post("http://127.0.0.1:5000/allocate", {
+      _id: postId
+    });
+    console.log("response from allocate: ", response);
+  }
 
   return (
     <div className="min-h-screen bg-gray-100 font-sans">
@@ -137,15 +153,37 @@ export default function Relief() {
           </div>
           <div className="w-full lg:w-1/3 space-y-8">
             <Card className="bg-white">
-              <h2 className="text-2xl font-semibold mb-4 text-gray-800">
-                Aid Needed
-              </h2>
+              <div className="flex justify-between items-center mb-2">
+                <h2 className="text-2xl font-semibold text-gray-800">
+                  Aid Needed
+                </h2>
+                {/* New "Availability" section */}
+                <div className="text-right">
+                  <h3 className="text-sm font-medium text-gray-600 mb-1">Availability</h3>
+                  <div className="flex gap-4">
+                    <div className="flex items-center">
+                      <Package size={16} className="mr-1 text-orange-500" />
+                      <span>{food}</span> {/* Static value for food */}
+                    </div>
+                    <div className="flex items-center">
+                      <Droplet size={16} className="mr-1 text-blue-500" />
+                      <span>{beds}</span> {/* Static value for water */}
+                    </div>
+                    <div className="flex items-center">
+                      <Bed size={16} className="mr-1 text-green-500" />
+                      <span>{water}</span> {/* Static value for beds */}
+                    </div>
+                  </div>
+                </div>
+              </div>
+              
+            
               <div className="space-y-4 overflow-y-auto max-h-[calc(50vh-2rem)]">
                 {aidRequests.map((request) => (
                   <Card
                     key={request.id}
                     title={request.purpose}
-                    className="bg-orange-100 hover:bg-orange-200"
+                    className="bg-orange-100 hover:bg-orange-200 relative"
                   >
                     <div className="flex flex-wrap items-center gap-4 mb-2 text-sm">
                       <div className="flex items-center">
@@ -166,6 +204,13 @@ export default function Relief() {
                       {request.latitude.toFixed(4)},{" "}
                       {request.longitude.toFixed(4)}
                     </p>
+                    {/* Allocate Button */}
+                    <button
+                      onClick={(request) => handleAllocate(request._id)}
+                      className="absolute bottom-2 right-2 bg-orange-200 hover:bg-orange-300 text-orange-700 font-semibold py-1 px-2 rounded text-xs"
+                    >
+                      Allocate
+                    </button>
                   </Card>
                 ))}
               </div>
