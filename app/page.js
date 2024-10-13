@@ -3,6 +3,7 @@
 import React, { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
+import ChatBot from "./components/ChatBot";
 import { motion } from "framer-motion";
 
 export default function Relief() {
@@ -119,6 +120,7 @@ export default function Relief() {
           </motion.button>
         </motion.div>
       )}
+      <ChatBot />
     </div>
   );
 }
