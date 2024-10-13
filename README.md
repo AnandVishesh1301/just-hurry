@@ -8,6 +8,8 @@ JustHurry is a comprehensive tool that connects those in need with relief organi
 
 ![App](./assets/image2.png)
 
+![App](./assets/image1.png)
+
 ### Here’s where JustHurry shines ✨
 Organizations can register the resources they have available, from food supplies 🥫 to medical equipment 🏥. Our platform optimally allocates these resources to regions based on real-time user requests, ensuring that those most in need get the help they deserve, faster ⏳. Additionally, with a seamless interface, JustHurry empowers users to request emergency help and volunteer to provide aid 🚑 with just a few clicks.
 
