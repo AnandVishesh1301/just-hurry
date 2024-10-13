@@ -4,6 +4,8 @@ import React, { useState, useEffect, useRef } from "react";
 import axios from "axios";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
+import { motion, AnimatePresence } from "framer-motion";
+
 
 export default function EmergencyDashboard() {
   const router = useRouter();
@@ -154,7 +156,10 @@ export default function EmergencyDashboard() {
 
   return (
     <div className="flex flex-col items-center justify-center min-h-screen bg-gray-100 p-4 relative">
-      <div
+      <motion.div
+        initial={{ opacity: 0, scale: 0.5 }}
+        animate={{ opacity: 1, scale: 1 }}
+        transition={{ duration: 0.5 }}
         className="absolute top-4 left-4 cursor-pointer"
         onClick={() => router.push("/")}
       >
@@ -165,9 +170,12 @@ export default function EmergencyDashboard() {
           height={200}
           className="md:w-32 md:h-32 w-24 h-24 ml-4"
         />
-      </div>
+      </motion.div>
       <div className="flex flex-col sm:flex-row justify-center items-center w-full max-w-md gap-8">
-        <button
+      <motion.button
+          initial={{ opacity: 0, y: 50 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5, delay: 0.2 }}
           onClick={handleSOSClick}
           disabled={isSOSButtonDisabled || isSOSLoading}
           className={`w-52 h-52 rounded-full font-bold text-xl shadow-lg transition-all ${
@@ -181,119 +189,169 @@ export default function EmergencyDashboard() {
             : isSOSButtonDisabled
             ? `Wait ${timeRemaining}s`
             : "Emergency SOS"}
-        </button>
-        <button
+        </motion.button>
+        <motion.button
+          initial={{ opacity: 0, y: 50 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5, delay: 0.4 }}
           onClick={() => setShowResourceModal(true)}
           className="w-52 h-52 rounded-full bg-orange-400 hover:bg-orange-500 active:bg-orange-600 text-white font-bold text-xl shadow-lg"
           disabled={isRequestSubmitted}
         >
           {isRequestSubmitted ? "Pending Approval" : "Request Resources"}
-        </button>
+        </motion.button>
       </div>
       {errorMessage && (
-        <div className="text-center text-red-500 text-lg mt-4">
+        <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.3 }}
+        className="text-center text-red-500 text-lg mt-4"
+        >
           {errorMessage}
-        </div>
+        </motion.div>
       )}
-      {showResourceModal && !isRequestSubmitted && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center p-4">
-          <div
-            ref={modalRef}
-            className="bg-white p-6 rounded-lg w-full max-w-md"
+      <AnimatePresence>
+        {showResourceModal && !isRequestSubmitted && (
+          <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          exit={{ opacity: 0 }}
+          transition={{ duration: 0.3 }}
+          className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center p-4"
           >
-            <h2 className="text-xl font-bold mb-4">Request Resources</h2>
-            {/* New heading for user details */}
+            <motion.div
+              initial={{ scale: 0.9, y: 50 }}
+              animate={{ scale: 1, y: 0 }}
+              exit={{ scale: 0.9, y: 50 }}
+              transition={{ duration: 0.3 }}
+              ref={modalRef}
+              className="bg-white p-6 rounded-lg w-full max-w-md"
+            >
+              <h2 className="text-xl font-bold mb-4">Request Resources</h2>
+              {/* New heading for user details */}
 
-            {resourceErrorMessage && (
-              <div className="text-center text-red-500 text-sm mb-4">
-                {resourceErrorMessage}
-              </div>
-            )}
-            <form onSubmit={handleRequestSubmit}>
-              <div className="mb-4">
-                <label htmlFor="purpose" className="block mb-2">
-                  Who are these resources for?
-                </label>
-                <div className="flex items-center">
-                  <input
-                    id="purpose"
-                    value={purpose}
-                    onChange={(e) => setPurpose(e.target.value)}
-                    placeholder="Ex: Local Community Center" // Add a placeholder here
-                    className="border rounded px-2 py-1 w-full mr-2 placeholder-gray-500" // Add Tailwind class to style the placeholder
-                    disabled={isResourceLoading}
-                  />
-                </div>
-              </div>
-              {/* <p>
-                <h3 className="text-lg font-semibold mb-4" >Please specify the quantities of resources you need.</h3>
-              </p> */}
-              <div className="mb-4">
-                <label htmlFor="food" className="block mb-2">
-                  Food
-                </label>
-                <div className="flex items-center">
-                  <input
-                    id="food"
-                    type="number"
-                    value={food}
-                    onChange={(e) => setFood(e.target.value)}
-                    className="border rounded px-2 py-1 w-full mr-2"
-                    disabled={isResourceLoading}
-                  />
-                </div>
-              </div>
-              <div className="mb-4">
-                <label htmlFor="water" className="block mb-2">
-                  Water
-                </label>
-                <div className="flex items-center">
-                  <input
-                    id="water"
-                    type="number"
-                    value={water}
-                    onChange={(e) => setWater(e.target.value)}
-                    className="border rounded px-2 py-1 w-full mr-2"
-                    disabled={isResourceLoading}
-                  />
-                </div>
-              </div>
-              <div className="mb-4">
-                <label htmlFor="beds" className="block mb-2">
-                  Beds
-                </label>
-                <div className="flex items-center">
-                  <input
-                    id="beds"
-                    type="number"
-                    value={beds}
-                    onChange={(e) => setBeds(e.target.value)}
-                    className="border rounded px-2 py-1 w-full mr-2"
-                    disabled={isResourceLoading}
-                  />
-                </div>
-              </div>
-              <div className="flex justify-end">
-                <button
-                  type="button"
-                  onClick={() => setShowResourceModal(false)}
-                  className="bg-gray-300 hover:bg-gray-400 text-black font-bold py-2 px-4 rounded mr-2"
-                  disabled={isResourceLoading}
+              {resourceErrorMessage && (
+                <motion.div
+                initial={{ opacity: 0, y: -10 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.3 }}
+                className="text-center text-red-500 text-sm mb-4"
                 >
-                  Cancel
-                </button>
-                <button
-                  type="submit"
-                  className="bg-black hover:bg-gray-500 text-white font-bold py-2 px-4 rounded"
-                  disabled={isResourceLoading}
+                  {resourceErrorMessage}
+                </motion.div>
+              )}
+              <form onSubmit={handleRequestSubmit}>
+                <motion.div
+                  initial={{ opacity: 0, x: -20 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  transition={{ duration: 0.3, delay: 0.1 }}
+                  className="mb-4"
                 >
-                  {isResourceLoading ? "Submitting..." : "Submit Request"}
-                </button>
-              </div>
-            </form>
-          </div>
-        </div>
-      )}
+                  <label htmlFor="purpose" className="block mb-2">
+                    Who are these resources for?
+                  </label>
+                  <div className="flex items-center">
+                    <input
+                      id="purpose"
+                      value={purpose}
+                      onChange={(e) => setPurpose(e.target.value)}
+                      placeholder="Ex: Local Community Center" // Add a placeholder here
+                      className="border rounded px-2 py-1 w-full mr-2 placeholder-gray-500" // Add Tailwind class to style the placeholder
+                      disabled={isResourceLoading}
+                    />
+                  </div>
+                </motion.div>
+                {/* <p>
+                  <h3 className="text-lg font-semibold mb-4" >Please specify the quantities of resources you need.</h3>
+                </p> */}
+                <motion.div
+                  initial={{ opacity: 0, x: -20 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  transition={{ duration: 0.3, delay: 0.2 }}
+                  className="mb-4"
+                >
+                  <label htmlFor="food" className="block mb-2">
+                    Food
+                  </label>
+                  <div className="flex items-center">
+                    <input
+                      id="food"
+                      type="number"
+                      value={food}
+                      onChange={(e) => setFood(e.target.value)}
+                      className="border rounded px-2 py-1 w-full mr-2"
+                      disabled={isResourceLoading}
+                    />
+                  </div>
+                </motion.div>
+                <motion.div
+                  initial={{ opacity: 0, x: -20 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  transition={{ duration: 0.3, delay: 0.3 }}
+                  className="mb-4"
+                >
+                  <label htmlFor="water" className="block mb-2">
+                    Water
+                  </label>
+                  <div className="flex items-center">
+                    <input
+                      id="water"
+                      type="number"
+                      value={water}
+                      onChange={(e) => setWater(e.target.value)}
+                      className="border rounded px-2 py-1 w-full mr-2"
+                      disabled={isResourceLoading}
+                    />
+                  </div>
+                </motion.div>
+                <motion.div
+                  initial={{ opacity: 0, x: -20 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  transition={{ duration: 0.3, delay: 0.4 }}
+                  className="mb-4"
+                >
+                  <label htmlFor="beds" className="block mb-2">
+                    Beds
+                  </label>
+                  <div className="flex items-center">
+                    <input
+                      id="beds"
+                      type="number"
+                      value={beds}
+                      onChange={(e) => setBeds(e.target.value)}
+                      className="border rounded px-2 py-1 w-full mr-2"
+                      disabled={isResourceLoading}
+                    />
+                  </div>
+                </motion.div>
+                <motion.div
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.3, delay: 0.5 }}
+                  className="flex justify-end"
+                >
+                  <button
+                    type="button"
+                    onClick={() => setShowResourceModal(false)}
+                    className="bg-gray-300 hover:bg-gray-400 text-black font-bold py-2 px-4 rounded mr-2"
+                    disabled={isResourceLoading}
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    type="submit"
+                    className="bg-black hover:bg-gray-500 text-white font-bold py-2 px-4 rounded"
+                    disabled={isResourceLoading}
+                  >
+                    {isResourceLoading ? "Submitting..." : "Submit Request"}
+                  </button>
+                </motion.div>
+              </form>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   );
 }
