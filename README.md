@@ -6,6 +6,7 @@ Thousands were left without homes and basic resources in the wake of the devasta
 ### What is JustHurry
 JustHurry is a comprehensive tool that connects those in need with relief organizations ready to provide timely aid 🤝. At its core is a custom ML model 🤖 that calculates a real-time risk factor for communities based on their socioeconomic vulnerability and historical hurricane data. It uses critical variables like air pressure, wind speed, income, and population density  🌬️ to predict impact zones and determine which regions require the most attention 🚨.
 
+![App](./assets/palantir.png)
 ![App](./assets/image2.png)
 
 ![App](./assets/image1.png)
