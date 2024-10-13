@@ -1,11 +1,11 @@
 "use client";
 
 import React, { useState, useEffect, useRef } from "react";
-import axios from "axios";
+import axios, { all } from "axios";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
-
+import { Package, Droplet, Bed } from "lucide-react";
 
 export default function EmergencyDashboard() {
   const router = useRouter();
@@ -23,10 +23,36 @@ export default function EmergencyDashboard() {
   const [resourceErrorMessage, setResourceErrorMessage] = useState(null);
   const [isRequestSubmitted, setIsRequestSubmitted] = useState(false);
   const [purpose, setPurpose] = useState("");
+  const [allocatedData, setAllocatedData] = useState(null);
 
   const modalRef = useRef(null);
 
   useEffect(() => {
+    const randomFunc = async () => {
+      try {
+        const send_id = sessionStorage.getItem("_id");
+
+        if (!send_id) {
+          console.error("No _id found in session storage.");
+          return;
+        }
+
+        const response_id = await axios.get(
+          `http://127.0.0.1:5000/check_allocated?id=${send_id}`
+        );
+
+        const check = response_id.data.allocated;
+
+        setAllocatedData(response_id.data);
+
+        console.log(check);
+      } catch (error) {
+        console.error("Error fetching allocated data:", error);
+      }
+    };
+
+    randomFunc();
+
     let timer;
     if (isSOSButtonDisabled && timeRemaining > 0) {
       timer = setTimeout(() => {
@@ -122,19 +148,23 @@ export default function EmergencyDashboard() {
         }
 
         try {
-          await axios.post("http://127.0.0.1:5000/save_supplies", {
-            food: foodValue,
-            water: waterValue,
-            beds: bedsValue,
-            name: savedName,
-            latitude: latitude,
-            longitude: longitude,
-            purpose: purpose,
-          });
+          const response = await axios.post(
+            "http://127.0.0.1:5000/save_supplies",
+            {
+              food: foodValue,
+              water: waterValue,
+              beds: bedsValue,
+              name: savedName,
+              latitude: latitude,
+              longitude: longitude,
+              purpose: purpose,
+            }
+          );
 
           setShowResourceModal(false);
           setIsRequestSubmitted(true);
           alert("Resource request submitted successfully.");
+          sessionStorage["_id"] = response.data.id;
           setFood("");
           setWater("");
           setBeds("");
@@ -171,8 +201,9 @@ export default function EmergencyDashboard() {
           className="md:w-32 md:h-32 w-24 h-24 ml-4"
         />
       </motion.div>
+
       <div className="flex flex-col sm:flex-row justify-center items-center w-full max-w-md gap-8">
-      <motion.button
+        <motion.button
           initial={{ opacity: 0, y: 50 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5, delay: 0.2 }}
@@ -198,15 +229,53 @@ export default function EmergencyDashboard() {
           className="w-52 h-52 rounded-full bg-orange-400 hover:bg-orange-500 active:bg-orange-600 text-white font-bold text-xl shadow-lg"
           disabled={isRequestSubmitted}
         >
-          {isRequestSubmitted ? "Pending Approval" : "Request Resources"}
+          {allocatedData ? (
+            <motion.button
+              initial={{ opacity: 0, y: 50 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.5, delay: 0.4 }}
+              onClick={() => setShowResourceModal(true)}
+              className={`w-52 h-52 rounded-full font-bold text-xl shadow-lg flex items-center justify-center ${
+                isRequestSubmitted
+                  ? "bg-gray-400 cursor-not-allowed"
+                  : "bg-orange-400 hover:bg-orange-500 active:bg-orange-600 text-white"
+              }`}
+              disabled={isRequestSubmitted || allocatedData}
+            >
+              {allocatedData ? (
+                <div className="flex gap-4 flex-col items-center">
+                  <div className="flex items-center">
+                    <Package size={20} className="mr-2 text-white" />
+                    <span>{allocatedData.food}</span>
+                  </div>
+                  <div className="flex items-center">
+                    <Droplet size={20} className="mr-2 text-white" />
+                    <span>{allocatedData.water}</span>
+                  </div>
+                  <div className="flex items-center">
+                    <Bed size={20} className="mr-2 text-white" />
+                    <span>{allocatedData.beds}</span>
+                  </div>
+                </div>
+              ) : isRequestSubmitted ? (
+                "Pending Approval"
+              ) : (
+                "Request Resources"
+              )}
+            </motion.button>
+          ) : isRequestSubmitted ? (
+            "Pending Approval"
+          ) : (
+            "Request Resources"
+          )}
         </motion.button>
       </div>
       {errorMessage && (
         <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.3 }}
-        className="text-center text-red-500 text-lg mt-4"
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.3 }}
+          className="text-center text-red-500 text-lg mt-4"
         >
           {errorMessage}
         </motion.div>
@@ -214,11 +283,11 @@ export default function EmergencyDashboard() {
       <AnimatePresence>
         {showResourceModal && !isRequestSubmitted && (
           <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          exit={{ opacity: 0 }}
-          transition={{ duration: 0.3 }}
-          className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center p-4"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.3 }}
+            className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center p-4"
           >
             <motion.div
               initial={{ scale: 0.9, y: 50 }}
@@ -233,10 +302,10 @@ export default function EmergencyDashboard() {
 
               {resourceErrorMessage && (
                 <motion.div
-                initial={{ opacity: 0, y: -10 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.3 }}
-                className="text-center text-red-500 text-sm mb-4"
+                  initial={{ opacity: 0, y: -10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.3 }}
+                  className="text-center text-red-500 text-sm mb-4"
                 >
                   {resourceErrorMessage}
                 </motion.div>
