@@ -46,9 +46,6 @@ def create_app():
         latitude = data.get('latitude')
         longitude = data.get('longitude')
         name = data.get('name')
-
-        print("data: ", data)
-        print("name: ", name)
         
         if latitude is None or longitude is None or name is None:
             return jsonify({"error": "Missing latitude or longitude"}), 400
@@ -62,7 +59,6 @@ def create_app():
         
         # Insert the data into the Coordinates.Location collection
         result = coordinates_collection.insert_one(location_data)
-        print(result)
         
         return jsonify({"message": "Location saved", "id": str(result.inserted_id)}), 201
     
@@ -134,7 +130,6 @@ def create_app():
 
         # Convert ObjectId to string
         latest_coordinate["_id"] = str(latest_coordinate["_id"])
-        print(latest_coordinate)
 
         return jsonify(latest_coordinate), 200
     
@@ -151,7 +146,6 @@ def create_app():
             return jsonify({"error": "No supplies found"}), 404
         # Convert ObjectId to string
         latest_supply['_id'] = str(latest_supply['_id'])
-        print(latest_supply)
 
         return jsonify(latest_supply), 200
     
@@ -183,8 +177,6 @@ def create_app():
             'volunteer': volunteer
         }
 
-        print(returnDict)
-
         # Return the response as JSON
         return jsonify(returnDict), 200
     
@@ -205,10 +197,6 @@ def create_app():
     @app.route('/allocate', methods=['GET'])
     def allocate():
         postId = ObjectId(request.args.get('id'))
-        print("post Id: ", postId)
-
-        print("post: ", postId)
-
         post = supplies_collection.find_one({"_id": postId})
         available = available_collection.find_one()
 
