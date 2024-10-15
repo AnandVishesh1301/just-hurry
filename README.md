@@ -1,4 +1,4 @@
-# JustHurry Hurricaine Relief Tool
+# JustHurry Hurricane Relief Tool
 Thousands were left without homes and basic resources in the wake of the devastating hurricanes that tore through Florida recently. We knew we had to dig deeper into this problem. To research this problem, we built an analysis tool using Palantir’s Foundry to pinpoint the areas most at risk of severe hurricane damage. Just then, we found out how slow and inefficient post-disaster relief efforts were. That’s when we realized something had to change. So, we created JustHurry—an intuitive platform built to expedite resource distribution and make sure the most vulnerable communities get the attention they need.
 
 ![App](./assets/image1.png)
